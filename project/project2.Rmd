@@ -1,0 +1,283 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "SDS348"
+date: ''
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+Alistair Keggen 
+Project 2
+
+
+```{r}
+library(dplyr)
+library(dplyr, warn.conflicts = FALSE)
+
+# Suppress summarise info
+options(dplyr.summarise.inform = FALSE)
+storms <- storms
+
+storms
+storms<- read_csv("stormsnew - storms.csv")
+storms <- storms %>% select(X1, name, year, month, hour, lat, long, status, category, wind, pressure, Gender)
+head(storms)
+```
+
+
+
+## Guidelines and Rubric
+
+- **0. (5 pts)** Introduction
+
+I chose the storms dataset from the dplyr package. This dataset interested me as I believed there could be many different relationships that could be tested within the data. The varibles included in this dataset include the storm name, the year, month, and date the storm occured,  the hour, the latitude and longitude of the storm, the status of the storm, the wind miles per hour,the pressure, and the gender of the storm name. Within each variable, there are 10010 observations 
+
+- **1. (15 pts)**  MANOVA, Univariate ANOVAs, Post-hoc t tests 
+
+```{r}
+library(rstatix)
+man1<-manova(cbind(lat, long, pressure, wind)~status, data=storms)
+summary(man1)
+
+summary.aov(man1)
+
+storms%>%group_by(status)%>%summarize(mean(lat), mean(long), mean(pressure), mean(wind))
+
+
+pairwise.t.test(storms$pressure,
+storms$status, p.adj="none")
+
+pairwise.t.test(storms$lat,
+storms$status, p.adj="none")
+
+pairwise.t.test(storms$long,
+storms$status, p.adj="none")
+
+pairwise.t.test(storms$wind,
+storms$status, p.adj="none")
+
+
+1-.95^17 #probability of type 1 error
+.05/17 #bonferroni correction
+
+group <- storms$status 
+DVs <- storms %>% select(lat, long, wind, pressure)
+
+#Test multivariate normality for each group (null: assumption met)
+sapply(split(DVs,group), mshapiro_test)
+
+#If any p<.05, stop (assumption violated).
+
+```
+From the MANOVA performed, at least one numerical mean is different within the three status levels of storm: tropical storm, tropical depression, and hurricane. Multiple univeriate ANOVAs were performed. The univeriate ANOVAS were significant, meaning within latitude, longitude, pressure, and wind, at least one status level differs. Pairwise T-tests were performed to see which groups differ. All groups differ within every numerical variable for each status except for the longtiudes of tropical storms and hurricanes.  One MANOVA, 4 ANOVAs, and 12 T-tests were performed for a total of 17 tests. The probability of at least one type I error is 0.5818797. The bonferroni correction is .002941. With this correction, Post hoc analysis was performed conducting pairwise comparisons to determine which status levels differed in latitude, longitude, pressure, and wind velocity. All three status levels were found to differ significantly from each other in terms of latitude, pressure, and wind velocity after adjusting for multiple comparisons (bonferroni ). However, longitutde did not differ significantly within the three status levels. 
+
+MANOVA assumptions are vast. They suggest that there are random samples, assumes DVs have multivariate normality, that there are linear relationships among DVs, etc. The storms data does not meet the MANOVA assumptions based on the plots. 
+
+
+- **2. (10 pts)** Randomization Test 
+
+```{r}
+
+summary(aov(lat~wind,data=storms))
+obs_F<-58.36
+Fs<-replicate(5000,{
+  new<-storms%>%mutate(lat=sample(lat)) 
+ 
+  SSW<- new%>%group_by(wind)%>%summarize(SSW=sum((lat-mean(lat))^2))%>%summarize(sum(SSW))%>%pull
+  SSB<- new%>%mutate(mean=mean(lat))%>%group_by(wind)%>%mutate(groupmean=mean(lat))%>%
+    summarize(SSB=sum((mean-groupmean)^2))%>%summarize(sum(SSB))%>%pull
+  (SSB/1)/(SSW/10008)
+})
+
+
+
+hist(Fs, prob=T); abline(v = obs_F, col="red",add=T)
+mean(Fs>obs_F)
+
+
+
+
+```
+The null hypothesis: there is no difference between the observed F statistic and the randomized F statistic. The randomized F statistic gives a scenario where the null hypothesis could be true. Alterior hypothesis: the F statistic and randomized F statistic are significantly different. From the graph, the observed F statistic could be found within the randomized test, so therefore we fail to reject the null hypothesis. 
+
+
+
+
+- **3. (35 pts)** Linear regression model predicting one of your response variables from at least 2 other variables
+
+```{r}
+library(sandwich)
+library(plotROC)
+library(lmtest)
+storms$pressure_c <- storms$pressure - mean(storms$pressure, na.rm=T)
+interaction <- lm(pressure~lat * status, data=storms)
+interaction2 <- lm(pressure~lat * status, data=storms)$residuals
+summary(interaction)
+
+storms %>% ggplot(aes(lat, pressure, color=status)) + geom_point() +geom_smooth(method="lm")
+ggplot()+geom_histogram(aes(interaction2),bins=20)
+ggplot(storms, aes(lat, pressure)) + geom_point(alpha=.3) 
+
+coeftest(interaction, vcov=vcovHC(interaction))
+         
+```
+The intercept represents the average pressure recorded during a hurricane. The statusTropical depression coefficent suggests that if the storm has the depression status than the average pressure would increase by 51.0475 units. The statusTropical storm coefficent suggests that if the storm has the storm status than the average pressure would increase by 47.694 units. The lat coefficent suggests that for every unit of lat that increases, the pressure would increase by .47795 units. The significant interactions demonstrate that effect of latitude on pressure depends on the status of the storm. From the graphs, linearity, normality, and homoskedasticity are not met. After recomputing the regression with robust standard errors, none of the coefficents changed, however all standard errors increased. Furthermore, this did not change the significance of each. My model explains 0.6611  (a proportion) of the variation in the outcome. 
+
+- **4. (5 pts)** Rerun same regression model with bootstrapped standard errors
+
+```{r}
+samp_distn<-replicate(5000, {
+boot_dat <- sample_frac(storms, replace=T) #take bootstrap sample of rows
+fit <-lm(pressure~lat * status, data=boot_dat) #fit model on bootstrap sample
+coef(fit) 
+})
+## Estimated SEs
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+
+```
+The new bootstrapped standard errors are very similar to the robust standard errors. However, the boostrapped standard errors are marginally smaller in every catagory. 
+
+
+
+- **5. (25 pts)** Logistic regression model predicting a binary variable from at least two explanatory variables.
+    
+```{r}
+library(knitr)
+opts_chunk$set(fig.align="center", fig.height=5, message=FALSE, warning=FALSE, fig.width=8, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+
+#HERE'S THE CLASSIFICAITON DIAGNOSTICS FUNCTION
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+isgender <- glm(Gender~wind+pressure, data=storms, family= "binomial")
+summary(isgender)
+exp(coef(isgender))
+prob <- predict(isgender, type = "response")
+class_diag(prob, storms$Gender)
+predicition <- ifelse(prob > 0.5, 1, 0)
+table(prediction = predicition, truth = storms$Gender) %>% addmargins
+
+ 
+ROCstar <-ggplot(isgender)+geom_roc(aes(d=Gender, m=prob), n.cuts=0)
+ROCstar
+calc_auc(ROCstar)
+
+```
+  While hurricane names switch between the two binary genders, this regression would indicate whether wind or pressure would, by chance, have an effect or relationship on the gender of the name of the Hurricane as well. The intercept indicates that the odds of having a woman name is .00126. The wind intercept is not significant. However, the pressure intercept is significiant, and indicates that , for every one additional pressure unit increase, odds of having a female name increase by a factor of 1.00665 (significant) The accuracy,the proportion of correctly classified names, is .513. The Sensitivity, the is proportion of women named hurricanes correctly classified, is .2199. The Specificity, is proportion of men name hurricanes correctly classified, is .7809. The Prescision,the proportion classified women hurricanes with actual women names, is .4784. The AUC is .52008. The AUC is very poor, indicating this is not a good model for prediciting whether a huricane will have a man or woman name from the wind and pressure data alone. The ROC curve is a graph of TPR (Sensitivity) against FPR (1-Specificity) and shows an AUC of .52009. THis means we are prediciting the correct names around 52% of the time. 
+
+
+- **6. (25 pts)** Perform a logistic regression predicting the same binary response variable from *ALL* variables
+
+
+```{r}
+isgender2 <- glm(Gender~wind+pressure+month+lat+long+category+status, data=storms, family= "binomial")
+summary(isgender2)
+exp(coef(isgender2))
+prob2 <- predict(isgender2, type = "response")
+class_diag(prob2, storms$Gender)
+
+
+ 
+k=10
+
+data <- storms[sample(nrow(storms)), ]
+folds <- cut(seq(1:nrow(storms)), breaks = k, labels = F)
+diags <- NULL
+
+2
+
+for (i in 1:k) {
+train <- data[folds != i, ]
+test <- data[folds == i, ]
+truth <- test$Gender
+fit <- glm(Gender~wind+pressure+month+lat+long+category+status, data=storms, family= "binomial")
+probs <- predict(fit, newdata = test, type = "response")
+diags <- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)
+
+
+storms1 <-storms %>% drop_na(Gender) 
+library(glmnet)
+y <- as.matrix(storms1$Gender)
+gender_preds <- model.matrix(Gender ~wind+pressure+month+lat+long+category+status, data = storms1)
+cv <- cv.glmnet(gender_preds, y, family = "binomial")
+lasso_fit <- glmnet(gender_preds, y, family = "binomial", lambda = cv$lambda.1se)
+coef(lasso_fit)
+
+
+
+k=10
+
+data <- storms1[sample(nrow(storms1)), ]
+folds <- cut(seq(1:nrow(storms1)), breaks = k, labels = F)
+diags <- NULL
+
+2
+
+for (i in 1:k) {
+train <- data[folds != i, ]
+test <- data[folds == i, ]
+truth <- test$Gender
+fit <- glm(Gender~month+lat+long+category+status+wind, data=storms1, family= "binomial")
+probs <- predict(fit, newdata = test, type = "response")
+diags <- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)
+```
+The first logistic regression model with all variables has an accuracy of 0.5393606, a sensitivity of 0.3724629, a specificity of 0.6918371, a precision of	0.5247642, and an AUC of	0.5465646. The AUC is poor indicating this is not a good model for prediciting whether a huricane will have a man or woman name from the variables. A ten-fold CV with the same model was performed, and the classification diagnostics are as follows: Accuracy = 0.5393606, sensitivity = 0.3726621, specificity =	0.691687, precision =	0.5249807, AUC = 0.5462168. This AUC was worse than the first logistic regression model that had an AUC of .5465646. LASSO was performed on the same model, and the varibles that were retained were month, lat, long, category, status, and wind. Another 10-fod CV was performed only using these varibles, and the AUC decreased to 0.5463381 from 0.5462168 from the first ten-fold CV, and 	0.5465646 from the first logistic regression. This means the performance of the model was worse. 
+   
+
+...
+
+
+
+
+

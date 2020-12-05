@@ -1,0 +1,254 @@
+---
+title: 'Project 1: Exploratory Data Analysis'
+author: "SDS348"
+date: ''
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+  pdf_document:
+    toc: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F,
+tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
+```
+
+
+Alistair Keggen 
+Project 1
+
+When I was looking at the various datasets available to me, I was very curious to see if there was a correlation between how much a country drinks and how high its Human Freedom Index Score was. Could there be an interesting correlation between alcohol consumption and having a lower personal freedom score? Alcohol is known to cause dangerous situations, so I wanted to see if higher alcohol consumption does lower the score of each country. Furthermore, do countries who consume more of a specific type of alchohol have a higher Human Freedom Index Score? Let's find out!
+
+I chose the dataset "drink"" from the fivethirtyeight package, and the Human Freedom Index dataset from the Cato Institute, the Fraser Institute, and the Friedrich Naumann Foundation for Freedom. The drink dataset contains the countries, beer, spirit, and wine servings per person per year, and the total litres of alcohol per capita per year. This package was contained in r. The Human Freedom Index dataset (HFID) was obtained through Kaggle. I chose to include the variables of Criminal justice Score, Homicide score, Religious Restrictions Score, Religious Harrasment Score, Women Missing Score, Security and Saftey Score, and finally the overall Personal Freedom Score. I picked these varaibles as I thought alcohol could influence a change in these categories. I manipulated the HFID by only taking these variables from the year 2010.  
+
+
+
+
+    
+```{r}
+library(dplyr)
+library(fivethirtyeight)
+drinks1 <- drinks 
+library(tidyverse)
+library(readr)
+full_dataset<- read_csv("hfi_cc_2018.csv")
+freedom_index <- full_dataset %>% filter(year=="2010")%>% select( year, countries, pf_rol_criminal, pf_ss_homicide, pf_religion_restrictions,pf_religion_harassment, pf_ss_women_missing, pf_religion_harassment,  pf_ss, pf_score) 
+
+
+```
+
+
+##1. Joining /Merging
+I joined the two datasets by country. This means that both datasets were merged into one by the common "country" category. I using inner_join to do so. I picked inner_join as there were countries in individual datasets that were not included in both. Inner_join joined the similar countries and omitting the individal countries. For instance, Afghanistan was dropped as it was featured in the alcohol dataset but was surprisingly not featured in the Human Freedom Index dataset. Since there were still many variables that did join, there are no potential new problems with this new dataset. 
+
+
+#### 2. Untidy
+
+Since my dataset was already tidy, I challenged myself by creating untidy data and grouping two catagorical variables together. I did not need to use this untidy dataset in the rest of my project. 
+
+    
+```{r}
+
+drink_freedom <-inner_join(drinks1, freedom_index, by=c("country"="countries")) 
+head(drink_freedom)
+
+
+
+
+longer_drink_freedom <- drink_freedom %>% pivot_longer(contains("pf")) %>% unite("Country statistic", country, name, na.rm = TRUE, remove = FALSE) %>% select(-country, -name) %>% rename("Statistic Value" = value) 
+longer_drink_freedom 
+
+```
+    
+
+
+#### 3. Wrangling (40 pts)
+
+First, I created a new column with the total number of alcohol servings by adding the beer, wine, and spirit servings together. With this new dataset, I wanted to see if there was a correlation between alcohol consumption and Overall Personal Freedom Score. I ran summary statistics on two parts of this dataset:I filtered the countries with the top highest alcohol consumption by litre and the countries with the lowest alcohol consumption by litre. The countries with the highest alcohol consumption had a total average of 8.03 for Overall Personal Freedom Score. This average was higher than the countries with the lowest alcohol consumption, for this average was at 6.5. I was expecting the countries with the lowest Overall Freedom Score to drink the most, however my inital data did not back up my hypothesis. 
+
+```{r}
+drink_freedom_new <- drink_freedom %>% mutate(Total_Alchohol_Servings= beer_servings+spirit_servings+wine_servings)
+
+drink_freedom_new %>% select(country, total_litres_of_pure_alcohol, pf_score ) %>%arrange(desc(pf_score)) %>%  filter(total_litres_of_pure_alcohol>median(total_litres_of_pure_alcohol)) %>%  summarize(mean_pure_alc_top= mean(total_litres_of_pure_alcohol, na.rm = T), mean_pf_score= mean(pf_score, na.rm = T),  max_litres_alc=max(total_litres_of_pure_alcohol), min_litres_alc=min(total_litres_of_pure_alcohol), sd_alc = sd(total_litres_of_pure_alcohol, na.rm=T), n=n(),
+se_alc = sd_alc/sqrt(n))
+
+drink_freedom_new %>%  select(country, total_litres_of_pure_alcohol, pf_score ) %>% arrange(pf_score) %>%  filter(total_litres_of_pure_alcohol<median(total_litres_of_pure_alcohol))%>%  summarize(mean_pure_alc_low=mean(total_litres_of_pure_alcohol, na.rm = T),mean_pf_score= mean(pf_score, na.rm = T), max_litres_alc=max(total_litres_of_pure_alcohol), min_litres_alc=min(total_litres_of_pure_alcohol),sd_alc= sd(total_litres_of_pure_alcohol, na.rm=T), n=n(),
+se_alc = sd_alc/sqrt(n))
+
+```
+ 
+####4. Make visualizations 
+
+
+The first graph depicts the total litres of alcohol consumed vs. the overall personal freedom score. Each point represents a different country, andl the size of the point correlates to that countries wine consumption. As alchohol consumption increases, so does the personal freedom score. Furthermore, the countries with the highest personal freedom score tend to drink many servings of wine each year. 
+
+The second and third graph depicts the top fifteen and bottom fifteen countries in regard to their Overall Personal Freedom score, respectfully. In these graphs, the color of the bars depict how many total alchohol servings on average a person has a year. The top 15 countries have many more servings of alchohol per person per year than the bottom 15 countries.
+  
+  
+  
+    
+```{r}
+
+cooltheme <- theme(plot.title = element_text(family = "Georgia", face = "bold", size = (7)), 
+                 legend.title = element_text(colour = "steelblue",  face = "bold.italic", family = "Helvetica"),   legend.text = element_text(face = "italic", colour="steelblue4",family = "Helvetica", size=(5)),  axis.title = element_text(family = "Helvetica", size = (10), colour = "steelblue4"),
+                  axis.text = element_text(family = "Courier", colour = "cornflowerblue", size = (10)))
+
+cooltheme2 <- theme(plot.title = element_text(family = "Georgia", face = "bold", size = (7)), 
+                 legend.title = element_text(colour = "black",  face = "bold.italic", family = "Helvetica"),   legend.text = element_text(face = "italic", colour="Black",family = "Helvetica", size=(5)),  axis.title = element_text(family = "Helvetica", size = (10), colour = "black"),
+                  axis.text = element_text(family = "Courier", colour = "cornflowerblue", size = (10)))
+
+
+ggplot(data = drink_freedom_new) + geom_point(aes(x = total_litres_of_pure_alcohol, y = pf_score, 
+    color = country, size=wine_servings ))+ geom_smooth(aes(x = total_litres_of_pure_alcohol, y = pf_score))+ cooltheme + labs(y= "Overall Freedom Index Score", x = "Total Litres of Pure Alcohol per Year", title = " Wine Servings on Overall Freedom Index Score")+ scale_x_continuous(n.breaks=20) + guides( color = FALSE) 
+
+ggplot(data = drink_freedom_new) + geom_point(aes(x = total_litres_of_pure_alcohol, y = pf_score, 
+    color = country, size=wine_servings ))+ geom_smooth(aes(x = total_litres_of_pure_alcohol, y = pf_score))+ cooltheme + labs(y= "Overall Freedom Index Score", x = "Total Litres of Pure Alcohol per Year", title = " Wine Servings on Overall Freedom Index Score")+ scale_x_continuous(n.breaks=20)
+
+top5countries <- drink_freedom_new %>% arrange(desc(pf_score)) %>%  slice(1:15)
+
+low5countries <- drink_freedom_new %>% arrange(pf_score) %>% slice(1:15)
+
+ggplot(top5countries) + geom_bar(aes(country, pf_score, 
+    fill = Total_Alchohol_Servings), stat = "summary") + cooltheme2 + coord_flip()+labs(y= "Overall Freedom Index Score", x = "Country", title = "Total Alchohol Servings for Top 15 Overall Freedom Index Score Countries")
+
+ggplot(low5countries) + geom_bar(aes(country, pf_score, 
+    fill = Total_Alchohol_Servings), stat = "summary") + cooltheme2 + coord_flip()+labs(y= "Overall Freedom Index Score", x = "Country", title = "Total Alchohol Servings for Bottom 15 Overall Freedom Index Score Countries")
+
+    
+```
+    
+  The fourth graph is a correlation heatmap of each varaible which shows if there are correlations between alcohol consumption and specific personal freedom statistics as well as the overall personal freedom score. Furthermore, I checked to see how distant each country was from each other using a distance table that selected for total consumption of alcohol in litres, the personal freedom homicide score, and the total overall personal freedom score. There seems to be positive correlations between wine servings and overall personal freedom score, wine servings and the increased security and saftey score, and wine servings and the criminal justice score. Other correlations can be found in the table. 
+    
+    
+```{r}
+bigcormat <- drink_freedom %>% select_if(is.numeric) %>% cor(use="pair")
+
+bigcormat
+
+tidycor <- bigcormat %>% as.data.frame %>% rownames_to_column("Variable 1") %>%
+pivot_longer(-1,names_to="Variable 2",values_to="correlation")
+tidycor
+
+tidycor%>%ggplot(aes(`Variable 1`,`Variable 2`,fill=correlation))+
+geom_tile()+
+scale_fill_gradient2(low="blue",mid="purple",high="red")+ 
+geom_text(aes(label=round(correlation,2)),color = "black", size = 2)+ 
+theme(axis.text.x = element_text(angle = 90, hjust=1))+ 
+coord_fixed()+ labs(y= "Variable 2", x = "Variable 1", title = "Correlation Heatmap")
+
+
+
+
+
+matrix1 <- drink_freedom_new %>% column_to_rownames("country") %>% select(total_litres_of_pure_alcohol, pf_ss_homicide, pf_score) %>%
+na.omit %>% dist %>% as.matrix 
+matrix1 %>% as.data.frame %>% rownames_to_column("name1") %>%
+pivot_longer(-name1,names_to="name2",values_to="distance")
+
+
+
+
+
+```
+    
+#### 5. Dimensionality Reduction (20 pts) 
+    
+    I then ran k-means/Pam clustering through r using the three variables of total litres of pure alchohol, total personal freedom score, and the saftey and security score. I wanted to see if there was a distinct groupings between these variables. First, I decided how many clusters I should use by computing silhouette width. I did this two times, once in k-means and once in Pam. Through these graphs, I decided to pick 3 clusters due to the elbow that occurs at 3.
+  
+```{r}
+
+library(cluster)
+
+
+clust_dat<-drink_freedom%>% na.omit %>% dplyr::select(pf_score, total_litres_of_pure_alcohol, pf_ss)
+
+sil_width<-vector() 
+for(i in 2:10){  
+  kms <- kmeans(clust_dat,centers=i) 
+  sil <- silhouette(kms$cluster,dist(clust_dat)) 
+  sil_width[i]<-mean(sil[,3]) 
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name="k",breaks=1:10)
+
+
+pam_dat<-drink_freedom%>%select(total_litres_of_pure_alcohol,pf_score, pf_ss)
+sil_width<-vector()
+for(i in 2:10){  
+  pam_fit <- pam(pam_dat, k = i)  
+  sil_width[i] <- pam_fit$silinfo$avg.width  
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name="k",breaks=1:10)
+
+
+```
+    I then clustered through k-means. Underneath is a visualization of the 3 clusters in regards to total litres of pure alcohol, Overall Personal Freedom Score, and the Saftey and Security Score.
+
+```{r}
+
+
+kmeans1 <- clust_dat %>% kmeans(3)
+kmeans1
+
+kmeansclust<-clust_dat%>%mutate(cluster=as.factor(kmeans1$cluster))
+
+kmeansclust%>%ggplot(aes(total_litres_of_pure_alcohol, pf_score, pf_ss, color=cluster))+geom_point() 
+
+
+```
+
+I also wanted to run the cluster analysis through Pam. The K-means and Pam cluster data visualization anaylsis is very similar. Futhermore, I summarized each cluster to give me the three points that represent each cluster. Next, I sliced the data to give me which specific countries best represent each cluster. In this instance it was Lithuania, Mauritania, and Finland.
+
+
+```{r}
+
+library(cluster)
+pam1<-clust_dat%>%pam(k=3)
+pam1
+
+
+pamclust<-clust_dat%>%mutate(cluster=as.factor(pam1$clustering))
+pamclust%>%ggplot(aes(total_litres_of_pure_alcohol,pf_score, pf_ss, color=cluster))+geom_point() 
+
+pamclust%>%group_by(cluster)%>%summarize_if(is.numeric,mean,na.rm=T)
+
+drink_freedom%>%slice(pam1$id.med)
+
+```
+I then interpreted the average silhouette width. This indicates if three clusters should have been used. From the graph, the middle silhouette indicates a strong structure was found, the low silhouette indicates a reasonable structure was found, and the top silhouette indicates this specific structure was weak. From this graph, I potentially could have used 2 clusters instead of 3. 
+
+```{r}
+pam1$silinfo$avg.width
+plot(pam1,which=2)
+```
+
+
+I then visualized my clusters based on the three variables: alcohol consumption, Overall Personal Freedom Score, and the saftey and security score. As you increase in alcohol consumption, the personal freedom score and the saftey and security score (a subset of the personal freedom score) increase. The graph also shows the three clusters of countries that have appeared in the data. 
+
+Through this analysis, I have found that my inital hypothesis was incorrect. I thought that the countries with the least freedom would drown their sorrows with higher alcohol consumption. The opposite is actually true, the countries with the highest Overall Freedom Score drank much more alcohol. This could be due to the least free countries being under more rigorous restrictions, having less access to alcohol, or having less money to spend on alcohol. A future visualization could be run to compare alcohol consumption to economic standings to figure this out.
+
+```{r}
+
+
+final <-drink_freedom %>% select(pf_score, total_litres_of_pure_alcohol, pf_ss) %>% scale %>% as.data.frame
+pam2 <- final %>% pam(3)
+
+
+final <- final %>% mutate(cluster=as.factor(pam2$clustering))
+
+
+library(plotly)
+final%>%plot_ly(x= ~total_litres_of_pure_alcohol,  y = ~pf_score, z = ~pf_ss, color= ~cluster, type = "scatter3d", mode = "markers")
+
+```
+
+
+...
+
+
+
+
+
