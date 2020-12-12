@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Alistair Keggen" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/post/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume.pdf/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project/project1.utf8/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              <p>Alistair Keggen 
+Project 1</p>
+<p>When I was looking at the various datasets available to me, I was very curious to see if there was a correlation between how much a country drinks and how high its Human Freedom Index Score was. Could there be an interesting correlation between alcohol consumption and having a lower personal freedom score? Alcohol is known to cause dangerous situations, so I wanted to see if higher alcohol consumption does lower the score of each country. Furthermore, do countries who consume more of a specific type of alchohol have a higher Human Freedom Index Score? Let&rsquo;s find out!</p>
+<p>I chose the dataset &ldquo;drink&rdquo;&quot; from the fivethirtyeight package, and the Human Freedom Index dataset from the Cato Institute, the Fraser Institute, and the Friedrich Naumann Foundation for Freedom. The drink dataset contains the countries, beer, spirit, and wine servings per person per year, and the total litres of alcohol per capita per year. This package was contained in r. The Human Freedom Index dataset (HFID) was obtained through Kaggle. I chose to include the variables of Criminal justice Score, Homicide score, Religious Restrictions Score, Religious Harrasment Score, Women Missing Score, Security and Saftey Score, and finally the overall Personal Freedom Score. I picked these varaibles as I thought alcohol could influence a change in these categories. I manipulated the HFID by only taking these variables from the year 2010.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">library</span>(dplyr)
+<span style="color:#a6e22e">library</span>(fivethirtyeight)
+drinks1 <span style="color:#f92672">&lt;-</span> drinks 
+<span style="color:#a6e22e">library</span>(tidyverse)
+<span style="color:#a6e22e">library</span>(readr)
+full_dataset<span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">read_csv</span>(<span style="color:#e6db74">&#34;hfi_cc_2018.csv&#34;</span>)
+freedom_index <span style="color:#f92672">&lt;-</span> full_dataset <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(year<span style="color:#f92672">==</span><span style="color:#e6db74">&#34;2010&#34;</span>)<span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>( year, countries, pf_rol_criminal, pf_ss_homicide, pf_religion_restrictions,pf_religion_harassment, pf_ss_women_missing, pf_religion_harassment,  pf_ss, pf_score) 
+</code></pre></div><p>##1. Joining /Merging
+I joined the two datasets by country. This means that both datasets were merged into one by the common &ldquo;country&rdquo; category. I using inner_join to do so. I picked inner_join as there were countries in individual datasets that were not included in both. Inner_join joined the similar countries and omitting the individal countries. For instance, Afghanistan was dropped as it was featured in the alcohol dataset but was surprisingly not featured in the Human Freedom Index dataset. Since there were still many variables that did join, there are no potential new problems with this new dataset.</p>
+<h4 id="2-untidy">2. Untidy</h4>
+<p>Since my dataset was already tidy, I challenged myself by creating untidy data and grouping two catagorical variables together. I did not need to use this untidy dataset in the rest of my project.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">drink_freedom <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">inner_join</span>(drinks1, freedom_index, by<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;country&#34;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;countries&#34;</span>)) 
+<span style="color:#a6e22e">head</span>(drink_freedom)
+</code></pre></div><pre><code>## # A tibble: 6 x 13
+##   country beer_servings spirit_servings wine_servings total_litres_of~  year
+##   &lt;chr&gt;           &lt;int&gt;           &lt;int&gt;         &lt;int&gt;            &lt;dbl&gt; &lt;dbl&gt;
+## 1 Albania            89             132            54              4.9  2010
+## 2 Algeria            25               0            14              0.7  2010
+## 3 Angola            217              57            45              5.9  2010
+## 4 Argent~           193              25           221              8.3  2010
+## 5 Armenia            21             179            11              3.8  2010
+## 6 Austra~           261              72           212             10.4  2010
+## # ... with 7 more variables: pf_rol_criminal &lt;dbl&gt;, pf_ss_homicide &lt;dbl&gt;,
+## #   pf_religion_restrictions &lt;dbl&gt;, pf_religion_harassment &lt;dbl&gt;,
+## #   pf_ss_women_missing &lt;dbl&gt;, pf_ss &lt;dbl&gt;, pf_score &lt;dbl&gt;
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">longer_drink_freedom <span style="color:#f92672">&lt;-</span> drink_freedom <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">pivot_longer</span>(<span style="color:#a6e22e">contains</span>(<span style="color:#e6db74">&#34;pf&#34;</span>)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">unite</span>(<span style="color:#e6db74">&#34;Country statistic&#34;</span>, country, name, na.rm <span style="color:#f92672">=</span> <span style="color:#66d9ef">TRUE</span>, remove <span style="color:#f92672">=</span> <span style="color:#66d9ef">FALSE</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(<span style="color:#f92672">-</span>country, <span style="color:#f92672">-</span>name) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">rename</span>(<span style="color:#e6db74">&#34;Statistic Value&#34;</span> <span style="color:#f92672">=</span> value) 
+longer_drink_freedom 
+</code></pre></div><pre><code>## # A tibble: 1,001 x 7
+##    `Country statis~ beer_servings spirit_servings wine_servings total_litres_of~
+##    &lt;chr&gt;                    &lt;int&gt;           &lt;int&gt;         &lt;int&gt;            &lt;dbl&gt;
+##  1 Albania_pf_rol_~            89             132            54              4.9
+##  2 Albania_pf_ss_h~            89             132            54              4.9
+##  3 Albania_pf_reli~            89             132            54              4.9
+##  4 Albania_pf_reli~            89             132            54              4.9
+##  5 Albania_pf_ss_w~            89             132            54              4.9
+##  6 Albania_pf_ss               89             132            54              4.9
+##  7 Albania_pf_score            89             132            54              4.9
+##  8 Algeria_pf_rol_~            25               0            14              0.7
+##  9 Algeria_pf_ss_h~            25               0            14              0.7
+## 10 Algeria_pf_reli~            25               0            14              0.7
+## # ... with 991 more rows, and 2 more variables: year &lt;dbl&gt;, `Statistic
+## #   Value` &lt;dbl&gt;
+</code></pre><h4 id="3-wrangling-40-pts">3. Wrangling (40 pts)</h4>
+<p>First, I created a new column with the total number of alcohol servings by adding the beer, wine, and spirit servings together. With this new dataset, I wanted to see if there was a correlation between alcohol consumption and Overall Personal Freedom Score. I ran summary statistics on two parts of this dataset:I filtered the countries with the top highest alcohol consumption by litre and the countries with the lowest alcohol consumption by litre. The countries with the highest alcohol consumption had a total average of 8.03 for Overall Personal Freedom Score. This average was higher than the countries with the lowest alcohol consumption, for this average was at 6.5. I was expecting the countries with the lowest Overall Freedom Score to drink the most, however my inital data did not back up my hypothesis.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">drink_freedom_new <span style="color:#f92672">&lt;-</span> drink_freedom <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(Total_Alchohol_Servings<span style="color:#f92672">=</span> beer_servings<span style="color:#f92672">+</span>spirit_servings<span style="color:#f92672">+</span>wine_servings)
+
+drink_freedom_new <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(country, total_litres_of_pure_alcohol, pf_score ) <span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">arrange</span>(<span style="color:#a6e22e">desc</span>(pf_score)) <span style="color:#f92672">%&gt;%</span>  <span style="color:#a6e22e">filter</span>(total_litres_of_pure_alcohol<span style="color:#f92672">&gt;</span><span style="color:#a6e22e">median</span>(total_litres_of_pure_alcohol)) <span style="color:#f92672">%&gt;%</span>  <span style="color:#a6e22e">summarize</span>(mean_pure_alc_top<span style="color:#f92672">=</span> <span style="color:#a6e22e">mean</span>(total_litres_of_pure_alcohol, na.rm <span style="color:#f92672">=</span> T), mean_pf_score<span style="color:#f92672">=</span> <span style="color:#a6e22e">mean</span>(pf_score, na.rm <span style="color:#f92672">=</span> T),  max_litres_alc<span style="color:#f92672">=</span><span style="color:#a6e22e">max</span>(total_litres_of_pure_alcohol), min_litres_alc<span style="color:#f92672">=</span><span style="color:#a6e22e">min</span>(total_litres_of_pure_alcohol), sd_alc <span style="color:#f92672">=</span> <span style="color:#a6e22e">sd</span>(total_litres_of_pure_alcohol, na.rm<span style="color:#f92672">=</span>T), n<span style="color:#f92672">=</span><span style="color:#a6e22e">n</span>(),
+se_alc <span style="color:#f92672">=</span> sd_alc<span style="color:#f92672">/</span><span style="color:#a6e22e">sqrt</span>(n))
+</code></pre></div><pre><code>## # A tibble: 1 x 7
+##   mean_pure_alc_t~ mean_pf_score max_litres_alc min_litres_alc sd_alc     n
+##              &lt;dbl&gt;         &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;
+## 1             8.31          8.04           14.4              5   2.14    69
+## # ... with 1 more variable: se_alc &lt;dbl&gt;
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">drink_freedom_new <span style="color:#f92672">%&gt;%</span>  <span style="color:#a6e22e">select</span>(country, total_litres_of_pure_alcohol, pf_score ) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">arrange</span>(pf_score) <span style="color:#f92672">%&gt;%</span>  <span style="color:#a6e22e">filter</span>(total_litres_of_pure_alcohol<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">median</span>(total_litres_of_pure_alcohol))<span style="color:#f92672">%&gt;%</span>  <span style="color:#a6e22e">summarize</span>(mean_pure_alc_low<span style="color:#f92672">=</span><span style="color:#a6e22e">mean</span>(total_litres_of_pure_alcohol, na.rm <span style="color:#f92672">=</span> T),mean_pf_score<span style="color:#f92672">=</span> <span style="color:#a6e22e">mean</span>(pf_score, na.rm <span style="color:#f92672">=</span> T), max_litres_alc<span style="color:#f92672">=</span><span style="color:#a6e22e">max</span>(total_litres_of_pure_alcohol), min_litres_alc<span style="color:#f92672">=</span><span style="color:#a6e22e">min</span>(total_litres_of_pure_alcohol),sd_alc<span style="color:#f92672">=</span> <span style="color:#a6e22e">sd</span>(total_litres_of_pure_alcohol, na.rm<span style="color:#f92672">=</span>T), n<span style="color:#f92672">=</span><span style="color:#a6e22e">n</span>(),
+se_alc <span style="color:#f92672">=</span> sd_alc<span style="color:#f92672">/</span><span style="color:#a6e22e">sqrt</span>(n))
+</code></pre></div><pre><code>## # A tibble: 1 x 7
+##   mean_pure_alc_l~ mean_pf_score max_litres_alc min_litres_alc sd_alc     n
+##              &lt;dbl&gt;         &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;
+## 1             1.74          6.55            4.7              0   1.48    71
+## # ... with 1 more variable: se_alc &lt;dbl&gt;
+</code></pre><p>####4. Make visualizations</p>
+<p>The first graph depicts the total litres of alcohol consumed vs. the overall personal freedom score. Each point represents a different country, andl the size of the point correlates to that countries wine consumption. As alchohol consumption increases, so does the personal freedom score. Furthermore, the countries with the highest personal freedom score tend to drink many servings of wine each year.</p>
+<p>The second and third graph depicts the top fifteen and bottom fifteen countries in regard to their Overall Personal Freedom score, respectfully. In these graphs, the color of the bars depict how many total alchohol servings on average a person has a year. The top 15 countries have many more servings of alchohol per person per year than the bottom 15 countries.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">cooltheme <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">theme</span>(plot.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Georgia&#34;</span>, face <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;bold&#34;</span>, size <span style="color:#f92672">=</span> (<span style="color:#ae81ff">7</span>)), 
+                 legend.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(colour <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;steelblue&#34;</span>,  face <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;bold.italic&#34;</span>, family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Helvetica&#34;</span>),   legend.text <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(face <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;italic&#34;</span>, colour<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;steelblue4&#34;</span>,family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Helvetica&#34;</span>, size<span style="color:#f92672">=</span>(<span style="color:#ae81ff">5</span>)),  axis.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Helvetica&#34;</span>, size <span style="color:#f92672">=</span> (<span style="color:#ae81ff">10</span>), colour <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;steelblue4&#34;</span>),
+                  axis.text <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Courier&#34;</span>, colour <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cornflowerblue&#34;</span>, size <span style="color:#f92672">=</span> (<span style="color:#ae81ff">10</span>)))
+
+cooltheme2 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">theme</span>(plot.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Georgia&#34;</span>, face <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;bold&#34;</span>, size <span style="color:#f92672">=</span> (<span style="color:#ae81ff">7</span>)), 
+                 legend.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(colour <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;black&#34;</span>,  face <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;bold.italic&#34;</span>, family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Helvetica&#34;</span>),   legend.text <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(face <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;italic&#34;</span>, colour<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Black&#34;</span>,family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Helvetica&#34;</span>, size<span style="color:#f92672">=</span>(<span style="color:#ae81ff">5</span>)),  axis.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Helvetica&#34;</span>, size <span style="color:#f92672">=</span> (<span style="color:#ae81ff">10</span>), colour <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;black&#34;</span>),
+                  axis.text <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(family <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Courier&#34;</span>, colour <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cornflowerblue&#34;</span>, size <span style="color:#f92672">=</span> (<span style="color:#ae81ff">10</span>)))
+
+
+<span style="color:#a6e22e">ggplot</span>(data <span style="color:#f92672">=</span> drink_freedom_new) <span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_point</span>(<span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> total_litres_of_pure_alcohol, y <span style="color:#f92672">=</span> pf_score, 
+    color <span style="color:#f92672">=</span> country, size<span style="color:#f92672">=</span>wine_servings ))<span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_smooth</span>(<span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> total_litres_of_pure_alcohol, y <span style="color:#f92672">=</span> pf_score))<span style="color:#f92672">+</span> cooltheme <span style="color:#f92672">+</span> <span style="color:#a6e22e">labs</span>(y<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Overall Freedom Index Score&#34;</span>, x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Total Litres of Pure Alcohol per Year&#34;</span>, title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34; Wine Servings on Overall Freedom Index Score&#34;</span>)<span style="color:#f92672">+</span> <span style="color:#a6e22e">scale_x_continuous</span>(n.breaks<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">guides</span>( color <span style="color:#f92672">=</span> <span style="color:#66d9ef">FALSE</span>) 
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">ggplot</span>(data <span style="color:#f92672">=</span> drink_freedom_new) <span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_point</span>(<span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> total_litres_of_pure_alcohol, y <span style="color:#f92672">=</span> pf_score, 
+    color <span style="color:#f92672">=</span> country, size<span style="color:#f92672">=</span>wine_servings ))<span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_smooth</span>(<span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> total_litres_of_pure_alcohol, y <span style="color:#f92672">=</span> pf_score))<span style="color:#f92672">+</span> cooltheme <span style="color:#f92672">+</span> <span style="color:#a6e22e">labs</span>(y<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Overall Freedom Index Score&#34;</span>, x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Total Litres of Pure Alcohol per Year&#34;</span>, title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34; Wine Servings on Overall Freedom Index Score&#34;</span>)<span style="color:#f92672">+</span> <span style="color:#a6e22e">scale_x_continuous</span>(n.breaks<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>)
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">top5countries <span style="color:#f92672">&lt;-</span> drink_freedom_new <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">arrange</span>(<span style="color:#a6e22e">desc</span>(pf_score)) <span style="color:#f92672">%&gt;%</span>  <span style="color:#a6e22e">slice</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">15</span>)
+
+low5countries <span style="color:#f92672">&lt;-</span> drink_freedom_new <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">arrange</span>(pf_score) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">slice</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">15</span>)
+
+<span style="color:#a6e22e">ggplot</span>(top5countries) <span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_bar</span>(<span style="color:#a6e22e">aes</span>(country, pf_score, 
+    fill <span style="color:#f92672">=</span> Total_Alchohol_Servings), stat <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;summary&#34;</span>) <span style="color:#f92672">+</span> cooltheme2 <span style="color:#f92672">+</span> <span style="color:#a6e22e">coord_flip</span>()<span style="color:#f92672">+</span><span style="color:#a6e22e">labs</span>(y<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Overall Freedom Index Score&#34;</span>, x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Country&#34;</span>, title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Total Alchohol Servings for Top 15 Overall Freedom Index Score Countries&#34;</span>)
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">ggplot</span>(low5countries) <span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_bar</span>(<span style="color:#a6e22e">aes</span>(country, pf_score, 
+    fill <span style="color:#f92672">=</span> Total_Alchohol_Servings), stat <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;summary&#34;</span>) <span style="color:#f92672">+</span> cooltheme2 <span style="color:#f92672">+</span> <span style="color:#a6e22e">coord_flip</span>()<span style="color:#f92672">+</span><span style="color:#a6e22e">labs</span>(y<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Overall Freedom Index Score&#34;</span>, x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Country&#34;</span>, title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Total Alchohol Servings for Bottom 15 Overall Freedom Index Score Countries&#34;</span>)
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<p>The fourth graph is a correlation heatmap of each varaible which shows if there are correlations between alcohol consumption and specific personal freedom statistics as well as the overall personal freedom score. Furthermore, I checked to see how distant each country was from each other using a distance table that selected for total consumption of alcohol in litres, the personal freedom homicide score, and the total overall personal freedom score. There seems to be positive correlations between wine servings and overall personal freedom score, wine servings and the increased security and saftey score, and wine servings and the criminal justice score. Other correlations can be found in the table.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">bigcormat <span style="color:#f92672">&lt;-</span> drink_freedom <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select_if</span>(is.numeric) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">cor</span>(use<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;pair&#34;</span>)
+
+bigcormat
+</code></pre></div><pre><code>##                              beer_servings spirit_servings wine_servings
+## beer_servings                   1.00000000      0.43047223    0.53246631
+## spirit_servings                 0.43047223      1.00000000    0.19244327
+## wine_servings                   0.53246631      0.19244327    1.00000000
+## total_litres_of_pure_alcohol    0.82450420      0.61130137    0.68687762
+## year                                    NA              NA            NA
+## pf_rol_criminal                 0.40419309      0.25860650    0.53414618
+## pf_ss_homicide                 -0.07205506     -0.05471653    0.33747291
+## pf_religion_restrictions        0.04463769      0.08681210   -0.00718471
+##                              total_litres_of_pure_alcohol year pf_rol_criminal
+## beer_servings                                  0.82450420   NA      0.40419309
+## spirit_servings                                0.61130137   NA      0.25860650
+## wine_servings                                  0.68687762   NA      0.53414618
+## total_litres_of_pure_alcohol                   1.00000000   NA      0.47011470
+## year                                                   NA   NA              NA
+## pf_rol_criminal                                0.47011470   NA      1.00000000
+## pf_ss_homicide                                 0.07332480   NA      0.44626113
+## pf_religion_restrictions                       0.08094197   NA     -0.02821911
+##                              pf_ss_homicide pf_religion_restrictions
+## beer_servings                   -0.07205506               0.04463769
+## spirit_servings                 -0.05471653               0.08681210
+## wine_servings                    0.33747291              -0.00718471
+## total_litres_of_pure_alcohol     0.07332480               0.08094197
+## year                                     NA                       NA
+## pf_rol_criminal                  0.44626113              -0.02821911
+## pf_ss_homicide                   1.00000000              -0.15434860
+## pf_religion_restrictions        -0.15434860               1.00000000
+##                              pf_religion_harassment pf_ss_women_missing
+## beer_servings                            0.03986051          0.35656277
+## spirit_servings                          0.11742709          0.16874527
+## wine_servings                            0.04884705          0.25440391
+## total_litres_of_pure_alcohol             0.07345400          0.39586358
+## year                                             NA                  NA
+## pf_rol_criminal                         -0.01094153          0.27892125
+## pf_ss_homicide                          -0.22954818         -0.21372016
+## pf_religion_restrictions                 0.65355348          0.10219917
+##                                    pf_ss  pf_score
+## beer_servings                 0.30930825 0.6127065
+## spirit_servings               0.27805688 0.4637769
+## wine_servings                 0.56930528 0.6931530
+## total_litres_of_pure_alcohol  0.41866580 0.6949136
+## year                                  NA        NA
+## pf_rol_criminal               0.63960797 0.6763354
+## pf_ss_homicide                0.77407032 0.2333534
+## pf_religion_restrictions     -0.03980064 0.1386633
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 4 rows ]
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">tidycor <span style="color:#f92672">&lt;-</span> bigcormat <span style="color:#f92672">%&gt;%</span> as.data.frame <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">rownames_to_column</span>(<span style="color:#e6db74">&#34;Variable 1&#34;</span>) <span style="color:#f92672">%&gt;%</span>
+<span style="color:#a6e22e">pivot_longer</span>(<span style="color:#ae81ff">-1</span>,names_to<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Variable 2&#34;</span>,values_to<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;correlation&#34;</span>)
+tidycor
+</code></pre></div><pre><code>## # A tibble: 144 x 3
+##    `Variable 1`  `Variable 2`                 correlation
+##    &lt;chr&gt;         &lt;chr&gt;                              &lt;dbl&gt;
+##  1 beer_servings beer_servings                     1     
+##  2 beer_servings spirit_servings                   0.430 
+##  3 beer_servings wine_servings                     0.532 
+##  4 beer_servings total_litres_of_pure_alcohol      0.825 
+##  5 beer_servings year                             NA     
+##  6 beer_servings pf_rol_criminal                   0.404 
+##  7 beer_servings pf_ss_homicide                   -0.0721
+##  8 beer_servings pf_religion_restrictions          0.0446
+##  9 beer_servings pf_religion_harassment            0.0399
+## 10 beer_servings pf_ss_women_missing               0.357 
+## # ... with 134 more rows
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">tidycor<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(`Variable 1`,`Variable 2`,fill<span style="color:#f92672">=</span>correlation))<span style="color:#f92672">+</span>
+<span style="color:#a6e22e">geom_tile</span>()<span style="color:#f92672">+</span>
+<span style="color:#a6e22e">scale_fill_gradient2</span>(low<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;blue&#34;</span>,mid<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;purple&#34;</span>,high<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;red&#34;</span>)<span style="color:#f92672">+</span> 
+<span style="color:#a6e22e">geom_text</span>(<span style="color:#a6e22e">aes</span>(label<span style="color:#f92672">=</span><span style="color:#a6e22e">round</span>(correlation,<span style="color:#ae81ff">2</span>)),color <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;black&#34;</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>)<span style="color:#f92672">+</span> 
+<span style="color:#a6e22e">theme</span>(axis.text.x <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(angle <span style="color:#f92672">=</span> <span style="color:#ae81ff">90</span>, hjust<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>))<span style="color:#f92672">+</span> 
+<span style="color:#a6e22e">coord_fixed</span>()<span style="color:#f92672">+</span> <span style="color:#a6e22e">labs</span>(y<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Variable 2&#34;</span>, x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Variable 1&#34;</span>, title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Correlation Heatmap&#34;</span>)
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">matrix1 <span style="color:#f92672">&lt;-</span> drink_freedom_new <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">column_to_rownames</span>(<span style="color:#e6db74">&#34;country&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(total_litres_of_pure_alcohol, pf_ss_homicide, pf_score) <span style="color:#f92672">%&gt;%</span>
+na.omit <span style="color:#f92672">%&gt;%</span> dist <span style="color:#f92672">%&gt;%</span> as.matrix 
+matrix1 <span style="color:#f92672">%&gt;%</span> as.data.frame <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">rownames_to_column</span>(<span style="color:#e6db74">&#34;name1&#34;</span>) <span style="color:#f92672">%&gt;%</span>
+<span style="color:#a6e22e">pivot_longer</span>(<span style="color:#f92672">-</span>name1,names_to<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;name2&#34;</span>,values_to<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;distance&#34;</span>)
+</code></pre></div><pre><code>## # A tibble: 17,956 x 3
+##    name1   name2      distance
+##    &lt;chr&gt;   &lt;chr&gt;         &lt;dbl&gt;
+##  1 Albania Albania        0   
+##  2 Albania Algeria        5.12
+##  3 Albania Angola         2.77
+##  4 Albania Argentina      3.66
+##  5 Albania Armenia        1.49
+##  6 Albania Australia      5.85
+##  7 Albania Austria        5.17
+##  8 Albania Azerbaijan     3.85
+##  9 Albania Bahamas        8.39
+## 10 Albania Bahrain        3.52
+## # ... with 17,946 more rows
+</code></pre><h4 id="5-dimensionality-reduction-20-pts">5. Dimensionality Reduction (20 pts)</h4>
+<pre><code>I then ran k-means/Pam clustering through r using the three variables of total litres of pure alchohol, total personal freedom score, and the saftey and security score. I wanted to see if there was a distinct groupings between these variables. First, I decided how many clusters I should use by computing silhouette width. I did this two times, once in k-means and once in Pam. Through these graphs, I decided to pick 3 clusters due to the elbow that occurs at 3.
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">library</span>(cluster)
+
+
+clust_dat<span style="color:#f92672">&lt;-</span>drink_freedom<span style="color:#f92672">%&gt;%</span> na.omit <span style="color:#f92672">%&gt;%</span> dplyr<span style="color:#f92672">::</span><span style="color:#a6e22e">select</span>(pf_score, total_litres_of_pure_alcohol, pf_ss)
+
+sil_width<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">vector</span>() 
+<span style="color:#a6e22e">for</span>(i in <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>){  
+  kms <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">kmeans</span>(clust_dat,centers<span style="color:#f92672">=</span>i) 
+  sil <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">silhouette</span>(kms<span style="color:#f92672">$</span>cluster,<span style="color:#a6e22e">dist</span>(clust_dat)) 
+  sil_width[i]<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">mean</span>(sil[,<span style="color:#ae81ff">3</span>]) 
+}
+<span style="color:#a6e22e">ggplot</span>()<span style="color:#f92672">+</span><span style="color:#a6e22e">geom_line</span>(<span style="color:#a6e22e">aes</span>(x<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>,y<span style="color:#f92672">=</span>sil_width))<span style="color:#f92672">+</span><span style="color:#a6e22e">scale_x_continuous</span>(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;k&#34;</span>,breaks<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>)
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">pam_dat<span style="color:#f92672">&lt;-</span>drink_freedom<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">select</span>(total_litres_of_pure_alcohol,pf_score, pf_ss)
+sil_width<span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">vector</span>()
+<span style="color:#a6e22e">for</span>(i in <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>){  
+  pam_fit <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">pam</span>(pam_dat, k <span style="color:#f92672">=</span> i)  
+  sil_width[i] <span style="color:#f92672">&lt;-</span> pam_fit<span style="color:#f92672">$</span>silinfo<span style="color:#f92672">$</span>avg.width  
+}
+<span style="color:#a6e22e">ggplot</span>()<span style="color:#f92672">+</span><span style="color:#a6e22e">geom_line</span>(<span style="color:#a6e22e">aes</span>(x<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>,y<span style="color:#f92672">=</span>sil_width))<span style="color:#f92672">+</span><span style="color:#a6e22e">scale_x_continuous</span>(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;k&#34;</span>,breaks<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>)
+</code></pre></div><p><!-- raw HTML omitted -->
+I then clustered through k-means. Underneath is a visualization of the 3 clusters in regards to total litres of pure alcohol, Overall Personal Freedom Score, and the Saftey and Security Score.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">kmeans1 <span style="color:#f92672">&lt;-</span> clust_dat <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">kmeans</span>(<span style="color:#ae81ff">3</span>)
+kmeans1
+</code></pre></div><pre><code>## K-means clustering with 3 clusters of sizes 30, 31, 28
+## 
+## Cluster means:
+##   pf_score total_litres_of_pure_alcohol    pf_ss
+## 1 6.344479                     1.250000 7.980307
+## 2 7.070905                     5.687097 7.693167
+## 3 8.882557                     9.614286 9.670915
+## 
+## Clustering vector:
+##  [1] 2 3 3 3 1 3 2 2 2 3 2 2 1 2 3 3 2 2 3 3 2 1 1 3 1 3 3 2 3 1 3 1 3 1 1 1 2 2
+## [39] 3 1 2 1 1 1 1 1 1 2 2 1 1 3 3 2 2 3 1 1 2 2 2 3 3 1 2 3 1 3 2 1 3 2 3 1 3 2
+## [77] 2 1 1 2 3 1 3 2 2 2 1 1 2
+## 
+## Within cluster sum of squares by cluster:
+## [1]  88.71440 133.72318  59.33452
+##  (between_SS / total_SS =  80.7 %)
+## 
+## Available components:
+## 
+## [1] &quot;cluster&quot;      &quot;centers&quot;      &quot;totss&quot;        &quot;withinss&quot;     &quot;tot.withinss&quot;
+## [6] &quot;betweenss&quot;    &quot;size&quot;         &quot;iter&quot;         &quot;ifault&quot;
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">kmeansclust<span style="color:#f92672">&lt;-</span>clust_dat<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">mutate</span>(cluster<span style="color:#f92672">=</span><span style="color:#a6e22e">as.factor</span>(kmeans1<span style="color:#f92672">$</span>cluster))
+
+kmeansclust<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(total_litres_of_pure_alcohol, pf_score, pf_ss, color<span style="color:#f92672">=</span>cluster))<span style="color:#f92672">+</span><span style="color:#a6e22e">geom_point</span>() 
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<p>I also wanted to run the cluster analysis through Pam. The K-means and Pam cluster data visualization anaylsis is very similar. Futhermore, I summarized each cluster to give me the three points that represent each cluster. Next, I sliced the data to give me which specific countries best represent each cluster. In this instance it was Lithuania, Mauritania, and Finland.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">library</span>(cluster)
+pam1<span style="color:#f92672">&lt;-</span>clust_dat<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">pam</span>(k<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
+pam1
+</code></pre></div><pre><code>## Medoids:
+##      ID pf_score total_litres_of_pure_alcohol    pf_ss
+## [1,] 76 7.748105                          6.4 8.470616
+## [2,] 83 9.012806                         10.4 9.780759
+## [3,] 42 6.464775                          1.8 7.817630
+## Clustering vector:
+##  [1] 1 1 2 2 3 2 3 1 1 2 1 3 3 1 2 1 1 3 2 2 1 3 3 2 3 2 2 1 2 3 2 3 2 3 3 3 1 3
+## [39] 1 3 1 3 3 3 3 3 3 1 1 3 3 2 2 3 1 1 3 3 1 1 1 2 2 3 1 2 3 2 1 3 2 1 2 3 1 1
+## [77] 1 3 3 1 2 3 2 1 1 1 3 3 1
+## Objective function:
+##    build     swap 
+## 1.669077 1.616910 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">pamclust<span style="color:#f92672">&lt;-</span>clust_dat<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">mutate</span>(cluster<span style="color:#f92672">=</span><span style="color:#a6e22e">as.factor</span>(pam1<span style="color:#f92672">$</span>clustering))
+pamclust<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(total_litres_of_pure_alcohol,pf_score, pf_ss, color<span style="color:#f92672">=</span>cluster))<span style="color:#f92672">+</span><span style="color:#a6e22e">geom_point</span>() 
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">pamclust<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">group_by</span>(cluster)<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">summarize_if</span>(is.numeric,mean,na.rm<span style="color:#f92672">=</span>T)
+</code></pre></div><pre><code>## # A tibble: 3 x 4
+##   cluster pf_score total_litres_of_pure_alcohol pf_ss
+##   &lt;fct&gt;      &lt;dbl&gt;                        &lt;dbl&gt; &lt;dbl&gt;
+## 1 1           7.39                         6.26  8.15
+## 2 2           8.87                        10.1   9.68
+## 3 3           6.43                         1.61  7.81
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">drink_freedom<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">slice</span>(pam1<span style="color:#f92672">$</span>id.med)
+</code></pre></div><pre><code>## # A tibble: 3 x 13
+##   country beer_servings spirit_servings wine_servings total_litres_of~  year
+##   &lt;chr&gt;           &lt;int&gt;           &lt;int&gt;         &lt;int&gt;            &lt;dbl&gt; &lt;dbl&gt;
+## 1 Lithua~           343             244            56             12.9  2010
+## 2 Maurit~             0               0             0              0    2010
+## 3 Finland           263             133            97             10    2010
+## # ... with 7 more variables: pf_rol_criminal &lt;dbl&gt;, pf_ss_homicide &lt;dbl&gt;,
+## #   pf_religion_restrictions &lt;dbl&gt;, pf_religion_harassment &lt;dbl&gt;,
+## #   pf_ss_women_missing &lt;dbl&gt;, pf_ss &lt;dbl&gt;, pf_score &lt;dbl&gt;
+</code></pre><p>I then interpreted the average silhouette width. This indicates if three clusters should have been used. From the graph, the middle silhouette indicates a strong structure was found, the low silhouette indicates a reasonable structure was found, and the top silhouette indicates this specific structure was weak. From this graph, I potentially could have used 2 clusters instead of 3.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">pam1<span style="color:#f92672">$</span>silinfo<span style="color:#f92672">$</span>avg.width
+</code></pre></div><pre><code>## [1] 0.4726952
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">plot</span>(pam1,which<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>)
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<p>I then visualized my clusters based on the three variables: alcohol consumption, Overall Personal Freedom Score, and the saftey and security score. As you increase in alcohol consumption, the personal freedom score and the saftey and security score (a subset of the personal freedom score) increase. The graph also shows the three clusters of countries that have appeared in the data.</p>
+<p>Through this analysis, I have found that my inital hypothesis was incorrect. I thought that the countries with the least freedom would drown their sorrows with higher alcohol consumption. The opposite is actually true, the countries with the highest Overall Freedom Score drank much more alcohol. This could be due to the least free countries being under more rigorous restrictions, having less access to alcohol, or having less money to spend on alcohol. A future visualization could be run to compare alcohol consumption to economic standings to figure this out.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">final <span style="color:#f92672">&lt;-</span>drink_freedom <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(pf_score, total_litres_of_pure_alcohol, pf_ss) <span style="color:#f92672">%&gt;%</span> scale <span style="color:#f92672">%&gt;%</span> as.data.frame
+pam2 <span style="color:#f92672">&lt;-</span> final <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">pam</span>(<span style="color:#ae81ff">3</span>)
+
+
+final <span style="color:#f92672">&lt;-</span> final <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(cluster<span style="color:#f92672">=</span><span style="color:#a6e22e">as.factor</span>(pam2<span style="color:#f92672">$</span>clustering))
+
+
+<span style="color:#a6e22e">library</span>(plotly)
+final<span style="color:#f92672">%&gt;%</span><span style="color:#a6e22e">plot_ly</span>(x<span style="color:#f92672">=</span> <span style="color:#f92672">~</span>total_litres_of_pure_alcohol,  y <span style="color:#f92672">=</span> <span style="color:#f92672">~</span>pf_score, z <span style="color:#f92672">=</span> <span style="color:#f92672">~</span>pf_ss, color<span style="color:#f92672">=</span> <span style="color:#f92672">~</span>cluster, type <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;scatter3d&#34;</span>, mode <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;markers&#34;</span>)
+</code></pre></div><p>preservef78e5a5264c6ece0</p>
+<p>&hellip;</p>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

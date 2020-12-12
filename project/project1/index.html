@@ -7,7 +7,7 @@
     <meta name="author" content="Alistair Keggen" />
     
     <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
-    <title>Project 1</title>
+    <title>Project 1: Exploratory Data Analysis</title>
     <meta name="generator" content="Hugo 0.79.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/css/main.css" />
@@ -54,13 +54,13 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="/project/project1/">Project 1</a></strong>
+            <strong><a href="/project/project1/">Project 1: Exploratory Data Analysis</a></strong>
           </h3>
         </div>
  
 <div class="blog-title">
           <h4>
-         December 1, 2020 
+         January 1, 0001 
             &nbsp;&nbsp;
             
           </h4>
@@ -72,10 +72,315 @@
               
 <link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
 <script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/plotly-binding/plotly.js"></script>
+<script src="/rmarkdown-libs/typedarray/typedarray.min.js"></script>
+<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="/rmarkdown-libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/crosstalk/js/crosstalk.min.js"></script>
+<link href="/rmarkdown-libs/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/plotly-main/plotly-latest.min.js"></script>
 
 
-<div id="test-project-1" class="section level2">
-<h2>Test Project 1</h2>
+<p>Alistair Keggen
+Project 1</p>
+<p>When I was looking at the various datasets available to me, I was very curious to see if there was a correlation between how much a country drinks and how high its Human Freedom Index Score was. Could there be an interesting correlation between alcohol consumption and having a lower personal freedom score? Alcohol is known to cause dangerous situations, so I wanted to see if higher alcohol consumption does lower the score of each country. Furthermore, do countries who consume more of a specific type of alchohol have a higher Human Freedom Index Score? Let’s find out!</p>
+<p>I chose the dataset “drink”" from the fivethirtyeight package, and the Human Freedom Index dataset from the Cato Institute, the Fraser Institute, and the Friedrich Naumann Foundation for Freedom. The drink dataset contains the countries, beer, spirit, and wine servings per person per year, and the total litres of alcohol per capita per year. This package was contained in r. The Human Freedom Index dataset (HFID) was obtained through Kaggle. I chose to include the variables of Criminal justice Score, Homicide score, Religious Restrictions Score, Religious Harrasment Score, Women Missing Score, Security and Saftey Score, and finally the overall Personal Freedom Score. I picked these varaibles as I thought alcohol could influence a change in these categories. I manipulated the HFID by only taking these variables from the year 2010.</p>
+<pre class="r"><code>library(dplyr)
+library(fivethirtyeight)
+drinks1 &lt;- drinks 
+library(tidyverse)
+library(readr)
+full_dataset&lt;- read_csv(&quot;hfi_cc_2018.csv&quot;)
+freedom_index &lt;- full_dataset %&gt;% filter(year==&quot;2010&quot;)%&gt;% select( year, countries, pf_rol_criminal, pf_ss_homicide, pf_religion_restrictions,pf_religion_harassment, pf_ss_women_missing, pf_religion_harassment,  pf_ss, pf_score) </code></pre>
+<p>##1. Joining /Merging
+I joined the two datasets by country. This means that both datasets were merged into one by the common “country” category. I using inner_join to do so. I picked inner_join as there were countries in individual datasets that were not included in both. Inner_join joined the similar countries and omitting the individal countries. For instance, Afghanistan was dropped as it was featured in the alcohol dataset but was surprisingly not featured in the Human Freedom Index dataset. Since there were still many variables that did join, there are no potential new problems with this new dataset.</p>
+<div id="untidy" class="section level4">
+<h4>2. Untidy</h4>
+<p>Since my dataset was already tidy, I challenged myself by creating untidy data and grouping two catagorical variables together. I did not need to use this untidy dataset in the rest of my project.</p>
+<pre class="r"><code>drink_freedom &lt;-inner_join(drinks1, freedom_index, by=c(&quot;country&quot;=&quot;countries&quot;)) 
+head(drink_freedom)</code></pre>
+<pre><code>## # A tibble: 6 x 13
+##   country beer_servings spirit_servings wine_servings total_litres_of~  year
+##   &lt;chr&gt;           &lt;int&gt;           &lt;int&gt;         &lt;int&gt;            &lt;dbl&gt; &lt;dbl&gt;
+## 1 Albania            89             132            54              4.9  2010
+## 2 Algeria            25               0            14              0.7  2010
+## 3 Angola            217              57            45              5.9  2010
+## 4 Argent~           193              25           221              8.3  2010
+## 5 Armenia            21             179            11              3.8  2010
+## 6 Austra~           261              72           212             10.4  2010
+## # ... with 7 more variables: pf_rol_criminal &lt;dbl&gt;, pf_ss_homicide &lt;dbl&gt;,
+## #   pf_religion_restrictions &lt;dbl&gt;, pf_religion_harassment &lt;dbl&gt;,
+## #   pf_ss_women_missing &lt;dbl&gt;, pf_ss &lt;dbl&gt;, pf_score &lt;dbl&gt;</code></pre>
+<pre class="r"><code>longer_drink_freedom &lt;- drink_freedom %&gt;% pivot_longer(contains(&quot;pf&quot;)) %&gt;% unite(&quot;Country statistic&quot;, country, name, na.rm = TRUE, remove = FALSE) %&gt;% select(-country, -name) %&gt;% rename(&quot;Statistic Value&quot; = value) 
+longer_drink_freedom </code></pre>
+<pre><code>## # A tibble: 1,001 x 7
+##    `Country statis~ beer_servings spirit_servings wine_servings total_litres_of~
+##    &lt;chr&gt;                    &lt;int&gt;           &lt;int&gt;         &lt;int&gt;            &lt;dbl&gt;
+##  1 Albania_pf_rol_~            89             132            54              4.9
+##  2 Albania_pf_ss_h~            89             132            54              4.9
+##  3 Albania_pf_reli~            89             132            54              4.9
+##  4 Albania_pf_reli~            89             132            54              4.9
+##  5 Albania_pf_ss_w~            89             132            54              4.9
+##  6 Albania_pf_ss               89             132            54              4.9
+##  7 Albania_pf_score            89             132            54              4.9
+##  8 Algeria_pf_rol_~            25               0            14              0.7
+##  9 Algeria_pf_ss_h~            25               0            14              0.7
+## 10 Algeria_pf_reli~            25               0            14              0.7
+## # ... with 991 more rows, and 2 more variables: year &lt;dbl&gt;, `Statistic
+## #   Value` &lt;dbl&gt;</code></pre>
+</div>
+<div id="wrangling-40-pts" class="section level4">
+<h4>3. Wrangling (40 pts)</h4>
+<p>First, I created a new column with the total number of alcohol servings by adding the beer, wine, and spirit servings together. With this new dataset, I wanted to see if there was a correlation between alcohol consumption and Overall Personal Freedom Score. I ran summary statistics on two parts of this dataset:I filtered the countries with the top highest alcohol consumption by litre and the countries with the lowest alcohol consumption by litre. The countries with the highest alcohol consumption had a total average of 8.03 for Overall Personal Freedom Score. This average was higher than the countries with the lowest alcohol consumption, for this average was at 6.5. I was expecting the countries with the lowest Overall Freedom Score to drink the most, however my inital data did not back up my hypothesis.</p>
+<pre class="r"><code>drink_freedom_new &lt;- drink_freedom %&gt;% mutate(Total_Alchohol_Servings= beer_servings+spirit_servings+wine_servings)
+
+drink_freedom_new %&gt;% select(country, total_litres_of_pure_alcohol, pf_score ) %&gt;%arrange(desc(pf_score)) %&gt;%  filter(total_litres_of_pure_alcohol&gt;median(total_litres_of_pure_alcohol)) %&gt;%  summarize(mean_pure_alc_top= mean(total_litres_of_pure_alcohol, na.rm = T), mean_pf_score= mean(pf_score, na.rm = T),  max_litres_alc=max(total_litres_of_pure_alcohol), min_litres_alc=min(total_litres_of_pure_alcohol), sd_alc = sd(total_litres_of_pure_alcohol, na.rm=T), n=n(),
+se_alc = sd_alc/sqrt(n))</code></pre>
+<pre><code>## # A tibble: 1 x 7
+##   mean_pure_alc_t~ mean_pf_score max_litres_alc min_litres_alc sd_alc     n
+##              &lt;dbl&gt;         &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;
+## 1             8.31          8.04           14.4              5   2.14    69
+## # ... with 1 more variable: se_alc &lt;dbl&gt;</code></pre>
+<pre class="r"><code>drink_freedom_new %&gt;%  select(country, total_litres_of_pure_alcohol, pf_score ) %&gt;% arrange(pf_score) %&gt;%  filter(total_litres_of_pure_alcohol&lt;median(total_litres_of_pure_alcohol))%&gt;%  summarize(mean_pure_alc_low=mean(total_litres_of_pure_alcohol, na.rm = T),mean_pf_score= mean(pf_score, na.rm = T), max_litres_alc=max(total_litres_of_pure_alcohol), min_litres_alc=min(total_litres_of_pure_alcohol),sd_alc= sd(total_litres_of_pure_alcohol, na.rm=T), n=n(),
+se_alc = sd_alc/sqrt(n))</code></pre>
+<pre><code>## # A tibble: 1 x 7
+##   mean_pure_alc_l~ mean_pf_score max_litres_alc min_litres_alc sd_alc     n
+##              &lt;dbl&gt;         &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;
+## 1             1.74          6.55            4.7              0   1.48    71
+## # ... with 1 more variable: se_alc &lt;dbl&gt;</code></pre>
+<p>####4. Make visualizations</p>
+<p>The first graph depicts the total litres of alcohol consumed vs. the overall personal freedom score. Each point represents a different country, andl the size of the point correlates to that countries wine consumption. As alchohol consumption increases, so does the personal freedom score. Furthermore, the countries with the highest personal freedom score tend to drink many servings of wine each year.</p>
+<p>The second and third graph depicts the top fifteen and bottom fifteen countries in regard to their Overall Personal Freedom score, respectfully. In these graphs, the color of the bars depict how many total alchohol servings on average a person has a year. The top 15 countries have many more servings of alchohol per person per year than the bottom 15 countries.</p>
+<pre class="r"><code>cooltheme &lt;- theme(plot.title = element_text(family = &quot;Georgia&quot;, face = &quot;bold&quot;, size = (7)), 
+                 legend.title = element_text(colour = &quot;steelblue&quot;,  face = &quot;bold.italic&quot;, family = &quot;Helvetica&quot;),   legend.text = element_text(face = &quot;italic&quot;, colour=&quot;steelblue4&quot;,family = &quot;Helvetica&quot;, size=(5)),  axis.title = element_text(family = &quot;Helvetica&quot;, size = (10), colour = &quot;steelblue4&quot;),
+                  axis.text = element_text(family = &quot;Courier&quot;, colour = &quot;cornflowerblue&quot;, size = (10)))
+
+cooltheme2 &lt;- theme(plot.title = element_text(family = &quot;Georgia&quot;, face = &quot;bold&quot;, size = (7)), 
+                 legend.title = element_text(colour = &quot;black&quot;,  face = &quot;bold.italic&quot;, family = &quot;Helvetica&quot;),   legend.text = element_text(face = &quot;italic&quot;, colour=&quot;Black&quot;,family = &quot;Helvetica&quot;, size=(5)),  axis.title = element_text(family = &quot;Helvetica&quot;, size = (10), colour = &quot;black&quot;),
+                  axis.text = element_text(family = &quot;Courier&quot;, colour = &quot;cornflowerblue&quot;, size = (10)))
+
+
+ggplot(data = drink_freedom_new) + geom_point(aes(x = total_litres_of_pure_alcohol, y = pf_score, 
+    color = country, size=wine_servings ))+ geom_smooth(aes(x = total_litres_of_pure_alcohol, y = pf_score))+ cooltheme + labs(y= &quot;Overall Freedom Index Score&quot;, x = &quot;Total Litres of Pure Alcohol per Year&quot;, title = &quot; Wine Servings on Overall Freedom Index Score&quot;)+ scale_x_continuous(n.breaks=20) + guides( color = FALSE) </code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(data = drink_freedom_new) + geom_point(aes(x = total_litres_of_pure_alcohol, y = pf_score, 
+    color = country, size=wine_servings ))+ geom_smooth(aes(x = total_litres_of_pure_alcohol, y = pf_score))+ cooltheme + labs(y= &quot;Overall Freedom Index Score&quot;, x = &quot;Total Litres of Pure Alcohol per Year&quot;, title = &quot; Wine Servings on Overall Freedom Index Score&quot;)+ scale_x_continuous(n.breaks=20)</code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>top5countries &lt;- drink_freedom_new %&gt;% arrange(desc(pf_score)) %&gt;%  slice(1:15)
+
+low5countries &lt;- drink_freedom_new %&gt;% arrange(pf_score) %&gt;% slice(1:15)
+
+ggplot(top5countries) + geom_bar(aes(country, pf_score, 
+    fill = Total_Alchohol_Servings), stat = &quot;summary&quot;) + cooltheme2 + coord_flip()+labs(y= &quot;Overall Freedom Index Score&quot;, x = &quot;Country&quot;, title = &quot;Total Alchohol Servings for Top 15 Overall Freedom Index Score Countries&quot;)</code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-4-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(low5countries) + geom_bar(aes(country, pf_score, 
+    fill = Total_Alchohol_Servings), stat = &quot;summary&quot;) + cooltheme2 + coord_flip()+labs(y= &quot;Overall Freedom Index Score&quot;, x = &quot;Country&quot;, title = &quot;Total Alchohol Servings for Bottom 15 Overall Freedom Index Score Countries&quot;)</code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-4-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The fourth graph is a correlation heatmap of each varaible which shows if there are correlations between alcohol consumption and specific personal freedom statistics as well as the overall personal freedom score. Furthermore, I checked to see how distant each country was from each other using a distance table that selected for total consumption of alcohol in litres, the personal freedom homicide score, and the total overall personal freedom score. There seems to be positive correlations between wine servings and overall personal freedom score, wine servings and the increased security and saftey score, and wine servings and the criminal justice score. Other correlations can be found in the table.</p>
+<pre class="r"><code>bigcormat &lt;- drink_freedom %&gt;% select_if(is.numeric) %&gt;% cor(use=&quot;pair&quot;)
+
+bigcormat</code></pre>
+<pre><code>##                              beer_servings spirit_servings wine_servings
+## beer_servings                   1.00000000      0.43047223    0.53246631
+## spirit_servings                 0.43047223      1.00000000    0.19244327
+## wine_servings                   0.53246631      0.19244327    1.00000000
+## total_litres_of_pure_alcohol    0.82450420      0.61130137    0.68687762
+## year                                    NA              NA            NA
+## pf_rol_criminal                 0.40419309      0.25860650    0.53414618
+## pf_ss_homicide                 -0.07205506     -0.05471653    0.33747291
+## pf_religion_restrictions        0.04463769      0.08681210   -0.00718471
+##                              total_litres_of_pure_alcohol year pf_rol_criminal
+## beer_servings                                  0.82450420   NA      0.40419309
+## spirit_servings                                0.61130137   NA      0.25860650
+## wine_servings                                  0.68687762   NA      0.53414618
+## total_litres_of_pure_alcohol                   1.00000000   NA      0.47011470
+## year                                                   NA   NA              NA
+## pf_rol_criminal                                0.47011470   NA      1.00000000
+## pf_ss_homicide                                 0.07332480   NA      0.44626113
+## pf_religion_restrictions                       0.08094197   NA     -0.02821911
+##                              pf_ss_homicide pf_religion_restrictions
+## beer_servings                   -0.07205506               0.04463769
+## spirit_servings                 -0.05471653               0.08681210
+## wine_servings                    0.33747291              -0.00718471
+## total_litres_of_pure_alcohol     0.07332480               0.08094197
+## year                                     NA                       NA
+## pf_rol_criminal                  0.44626113              -0.02821911
+## pf_ss_homicide                   1.00000000              -0.15434860
+## pf_religion_restrictions        -0.15434860               1.00000000
+##                              pf_religion_harassment pf_ss_women_missing
+## beer_servings                            0.03986051          0.35656277
+## spirit_servings                          0.11742709          0.16874527
+## wine_servings                            0.04884705          0.25440391
+## total_litres_of_pure_alcohol             0.07345400          0.39586358
+## year                                             NA                  NA
+## pf_rol_criminal                         -0.01094153          0.27892125
+## pf_ss_homicide                          -0.22954818         -0.21372016
+## pf_religion_restrictions                 0.65355348          0.10219917
+##                                    pf_ss  pf_score
+## beer_servings                 0.30930825 0.6127065
+## spirit_servings               0.27805688 0.4637769
+## wine_servings                 0.56930528 0.6931530
+## total_litres_of_pure_alcohol  0.41866580 0.6949136
+## year                                  NA        NA
+## pf_rol_criminal               0.63960797 0.6763354
+## pf_ss_homicide                0.77407032 0.2333534
+## pf_religion_restrictions     -0.03980064 0.1386633
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 4 rows ]</code></pre>
+<pre class="r"><code>tidycor &lt;- bigcormat %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;Variable 1&quot;) %&gt;%
+pivot_longer(-1,names_to=&quot;Variable 2&quot;,values_to=&quot;correlation&quot;)
+tidycor</code></pre>
+<pre><code>## # A tibble: 144 x 3
+##    `Variable 1`  `Variable 2`                 correlation
+##    &lt;chr&gt;         &lt;chr&gt;                              &lt;dbl&gt;
+##  1 beer_servings beer_servings                     1     
+##  2 beer_servings spirit_servings                   0.430 
+##  3 beer_servings wine_servings                     0.532 
+##  4 beer_servings total_litres_of_pure_alcohol      0.825 
+##  5 beer_servings year                             NA     
+##  6 beer_servings pf_rol_criminal                   0.404 
+##  7 beer_servings pf_ss_homicide                   -0.0721
+##  8 beer_servings pf_religion_restrictions          0.0446
+##  9 beer_servings pf_religion_harassment            0.0399
+## 10 beer_servings pf_ss_women_missing               0.357 
+## # ... with 134 more rows</code></pre>
+<pre class="r"><code>tidycor%&gt;%ggplot(aes(`Variable 1`,`Variable 2`,fill=correlation))+
+geom_tile()+
+scale_fill_gradient2(low=&quot;blue&quot;,mid=&quot;purple&quot;,high=&quot;red&quot;)+ 
+geom_text(aes(label=round(correlation,2)),color = &quot;black&quot;, size = 2)+ 
+theme(axis.text.x = element_text(angle = 90, hjust=1))+ 
+coord_fixed()+ labs(y= &quot;Variable 2&quot;, x = &quot;Variable 1&quot;, title = &quot;Correlation Heatmap&quot;)</code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>matrix1 &lt;- drink_freedom_new %&gt;% column_to_rownames(&quot;country&quot;) %&gt;% select(total_litres_of_pure_alcohol, pf_ss_homicide, pf_score) %&gt;%
+na.omit %&gt;% dist %&gt;% as.matrix 
+matrix1 %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;name1&quot;) %&gt;%
+pivot_longer(-name1,names_to=&quot;name2&quot;,values_to=&quot;distance&quot;)</code></pre>
+<pre><code>## # A tibble: 17,956 x 3
+##    name1   name2      distance
+##    &lt;chr&gt;   &lt;chr&gt;         &lt;dbl&gt;
+##  1 Albania Albania        0   
+##  2 Albania Algeria        5.12
+##  3 Albania Angola         2.77
+##  4 Albania Argentina      3.66
+##  5 Albania Armenia        1.49
+##  6 Albania Australia      5.85
+##  7 Albania Austria        5.17
+##  8 Albania Azerbaijan     3.85
+##  9 Albania Bahamas        8.39
+## 10 Albania Bahrain        3.52
+## # ... with 17,946 more rows</code></pre>
+</div>
+<div id="dimensionality-reduction-20-pts" class="section level4">
+<h4>5. Dimensionality Reduction (20 pts)</h4>
+<pre><code>I then ran k-means/Pam clustering through r using the three variables of total litres of pure alchohol, total personal freedom score, and the saftey and security score. I wanted to see if there was a distinct groupings between these variables. First, I decided how many clusters I should use by computing silhouette width. I did this two times, once in k-means and once in Pam. Through these graphs, I decided to pick 3 clusters due to the elbow that occurs at 3.</code></pre>
+<pre class="r"><code>library(cluster)
+
+
+clust_dat&lt;-drink_freedom%&gt;% na.omit %&gt;% dplyr::select(pf_score, total_litres_of_pure_alcohol, pf_ss)
+
+sil_width&lt;-vector() 
+for(i in 2:10){  
+  kms &lt;- kmeans(clust_dat,centers=i) 
+  sil &lt;- silhouette(kms$cluster,dist(clust_dat)) 
+  sil_width[i]&lt;-mean(sil[,3]) 
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name=&quot;k&quot;,breaks=1:10)</code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pam_dat&lt;-drink_freedom%&gt;%select(total_litres_of_pure_alcohol,pf_score, pf_ss)
+sil_width&lt;-vector()
+for(i in 2:10){  
+  pam_fit &lt;- pam(pam_dat, k = i)  
+  sil_width[i] &lt;- pam_fit$silinfo$avg.width  
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name=&quot;k&quot;,breaks=1:10)</code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" />
+I then clustered through k-means. Underneath is a visualization of the 3 clusters in regards to total litres of pure alcohol, Overall Personal Freedom Score, and the Saftey and Security Score.</p>
+<pre class="r"><code>kmeans1 &lt;- clust_dat %&gt;% kmeans(3)
+kmeans1</code></pre>
+<pre><code>## K-means clustering with 3 clusters of sizes 31, 30, 28
+## 
+## Cluster means:
+##   pf_score total_litres_of_pure_alcohol    pf_ss
+## 1 7.070905                     5.687097 7.693167
+## 2 6.344479                     1.250000 7.980307
+## 3 8.882557                     9.614286 9.670915
+## 
+## Clustering vector:
+##  [1] 1 3 3 3 2 3 1 1 1 3 1 1 2 1 3 3 1 1 3 3 1 2 2 3 2 3 3 1 3 2 3 2 3 2 2 2 1 1
+## [39] 3 2 1 2 2 2 2 2 2 1 1 2 2 3 3 1 1 3 2 2 1 1 1 3 3 2 1 3 2 3 1 2 3 1 3 2 3 1
+## [77] 1 2 2 1 3 2 3 1 1 1 2 2 1
+## 
+## Within cluster sum of squares by cluster:
+## [1] 133.72318  88.71440  59.33452
+##  (between_SS / total_SS =  80.7 %)
+## 
+## Available components:
+## 
+## [1] &quot;cluster&quot;      &quot;centers&quot;      &quot;totss&quot;        &quot;withinss&quot;     &quot;tot.withinss&quot;
+## [6] &quot;betweenss&quot;    &quot;size&quot;         &quot;iter&quot;         &quot;ifault&quot;</code></pre>
+<pre class="r"><code>kmeansclust&lt;-clust_dat%&gt;%mutate(cluster=as.factor(kmeans1$cluster))
+
+kmeansclust%&gt;%ggplot(aes(total_litres_of_pure_alcohol, pf_score, pf_ss, color=cluster))+geom_point() </code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>I also wanted to run the cluster analysis through Pam. The K-means and Pam cluster data visualization anaylsis is very similar. Futhermore, I summarized each cluster to give me the three points that represent each cluster. Next, I sliced the data to give me which specific countries best represent each cluster. In this instance it was Lithuania, Mauritania, and Finland.</p>
+<pre class="r"><code>library(cluster)
+pam1&lt;-clust_dat%&gt;%pam(k=3)
+pam1</code></pre>
+<pre><code>## Medoids:
+##      ID pf_score total_litres_of_pure_alcohol    pf_ss
+## [1,] 76 7.748105                          6.4 8.470616
+## [2,] 83 9.012806                         10.4 9.780759
+## [3,] 42 6.464775                          1.8 7.817630
+## Clustering vector:
+##  [1] 1 1 2 2 3 2 3 1 1 2 1 3 3 1 2 1 1 3 2 2 1 3 3 2 3 2 2 1 2 3 2 3 2 3 3 3 1 3
+## [39] 1 3 1 3 3 3 3 3 3 1 1 3 3 2 2 3 1 1 3 3 1 1 1 2 2 3 1 2 3 2 1 3 2 1 2 3 1 1
+## [77] 1 3 3 1 2 3 2 1 1 1 3 3 1
+## Objective function:
+##    build     swap 
+## 1.669077 1.616910 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code>pamclust&lt;-clust_dat%&gt;%mutate(cluster=as.factor(pam1$clustering))
+pamclust%&gt;%ggplot(aes(total_litres_of_pure_alcohol,pf_score, pf_ss, color=cluster))+geom_point() </code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pamclust%&gt;%group_by(cluster)%&gt;%summarize_if(is.numeric,mean,na.rm=T)</code></pre>
+<pre><code>## # A tibble: 3 x 4
+##   cluster pf_score total_litres_of_pure_alcohol pf_ss
+##   &lt;fct&gt;      &lt;dbl&gt;                        &lt;dbl&gt; &lt;dbl&gt;
+## 1 1           7.39                         6.26  8.15
+## 2 2           8.87                        10.1   9.68
+## 3 3           6.43                         1.61  7.81</code></pre>
+<pre class="r"><code>drink_freedom%&gt;%slice(pam1$id.med)</code></pre>
+<pre><code>## # A tibble: 3 x 13
+##   country beer_servings spirit_servings wine_servings total_litres_of~  year
+##   &lt;chr&gt;           &lt;int&gt;           &lt;int&gt;         &lt;int&gt;            &lt;dbl&gt; &lt;dbl&gt;
+## 1 Lithua~           343             244            56             12.9  2010
+## 2 Maurit~             0               0             0              0    2010
+## 3 Finland           263             133            97             10    2010
+## # ... with 7 more variables: pf_rol_criminal &lt;dbl&gt;, pf_ss_homicide &lt;dbl&gt;,
+## #   pf_religion_restrictions &lt;dbl&gt;, pf_religion_harassment &lt;dbl&gt;,
+## #   pf_ss_women_missing &lt;dbl&gt;, pf_ss &lt;dbl&gt;, pf_score &lt;dbl&gt;</code></pre>
+<p>I then interpreted the average silhouette width. This indicates if three clusters should have been used. From the graph, the middle silhouette indicates a strong structure was found, the low silhouette indicates a reasonable structure was found, and the top silhouette indicates this specific structure was weak. From this graph, I potentially could have used 2 clusters instead of 3.</p>
+<pre class="r"><code>pam1$silinfo$avg.width</code></pre>
+<pre><code>## [1] 0.4726952</code></pre>
+<pre class="r"><code>plot(pam1,which=2)</code></pre>
+<p><img src="/project/Project1_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>I then visualized my clusters based on the three variables: alcohol consumption, Overall Personal Freedom Score, and the saftey and security score. As you increase in alcohol consumption, the personal freedom score and the saftey and security score (a subset of the personal freedom score) increase. The graph also shows the three clusters of countries that have appeared in the data.</p>
+<p>Through this analysis, I have found that my inital hypothesis was incorrect. I thought that the countries with the least freedom would drown their sorrows with higher alcohol consumption. The opposite is actually true, the countries with the highest Overall Freedom Score drank much more alcohol. This could be due to the least free countries being under more rigorous restrictions, having less access to alcohol, or having less money to spend on alcohol. A future visualization could be run to compare alcohol consumption to economic standings to figure this out.</p>
+<pre class="r"><code>final &lt;-drink_freedom %&gt;% select(pf_score, total_litres_of_pure_alcohol, pf_ss) %&gt;% scale %&gt;% as.data.frame
+pam2 &lt;- final %&gt;% pam(3)
+
+
+final &lt;- final %&gt;% mutate(cluster=as.factor(pam2$clustering))
+
+
+library(plotly)
+final%&gt;%plot_ly(x= ~total_litres_of_pure_alcohol,  y = ~pf_score, z = ~pf_ss, color= ~cluster, type = &quot;scatter3d&quot;, mode = &quot;markers&quot;)</code></pre>
+<div id="htmlwidget-1" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"visdat":{"29d448224646":["function () ","plotlyVisDat"]},"cur_data":"29d448224646","attrs":{"29d448224646":{"x":{},"y":{},"z":{},"mode":"markers","color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"total_litres_of_pure_alcohol"},"yaxis":{"title":"pf_score"},"zaxis":{"title":"pf_ss"}},"hovermode":"closest","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":[-0.0210070696975689,0.247208195191036,0.890924830923688,0.354494301146478,0.354494301146478,0.48860193359078,0.113100562746734,0.595888039546222,-0.181936228630732,0.354494301146478,-0.262400808097313,0.220386668702175,0.703174145501664,0.00581445679129148,-0.208757755119592,-0.155114702141871,-0.208757755119592,1.05185398985685,0.113100562746734,0.569066513057362,0.247208195191036,0.434958880613059,0.408137354124199,0.542244986568501,0.48860193359078,0.434958880613059,0.139922089235594,-0.0210070696975689,-0.0210070696975689,0.48860193359078,1.10549704283457,0.46178040710192,0.595888039546222,0.622709566035083,0.300851248168757,-0.101471649164151,0.354494301146478,0.48860193359078,0.46178040710192,0.864103304434827,0.166743615724454,-0.07465012267529,0.595888039546222,0.381315827635339,0.890924830923688,0.193565142213315,0.434958880613059,0.729995671990525,-0.07465012267529],"y":[0.337574934765105,-1.65662836186882,0.665119435004616,0.443305119358562,0.548014369530139,0.0456610378163317,-0.402064404638141,0.346148731359439,0.203866548510446,-0.74767507612442,-1.1617889237021,-1.25256450593583,1.02923801613265,-1.35674465266812,-0.33694063837668,0.589959186973717,0.0706384653161173,-0.973153259743935,0.630588189992261,-0.0970186015307707,-0.230453471320077,1.44702764271153,1.11396278468574,1.13505297208446,-0.316138598829002,1.32229804344236,-0.418901239027962,0.200539573154895,0.686170818297049,-0.0600813675333004,-1.11098439093099,1.73143067079286,0.280750175733738,-0.00156759062795905,0.215435060638246,-0.000207335193692177,0.100657659158314,-0.47089090940489,-0.652628442335022,-0.403215667531302,0.410895460799888,-1.13346824813212,1.63623691136465,0.330511738565784,-1.32388449758311,-0.64960121458504,1.15655952486333,-0.746870005425983,-1.5149412940067],"z":[0.410967175417885,0.048209143847935,0.382165127245687,-1.33609803709261,0.135607708845826,-1.33609803709261,-0.723029828747744,-1.01748031803665,-0.00623532055175461,-0.306568814604956,-1.54140875714632,-0.107600475794561,0.971248927785544,-0.470885582398729,-2.47664225498373,0.0820831542239818,-0.813824473153417,-0.759637008414022,0.124290576347321,-0.80743925783996,-0.112833921474872,1.24261464693059,1.17035730685417,1.27039930540378,0.281667636846545,1.20697124098344,-1.45472610651193,0.0239553874501728,0.922239698747263,-1.45411855236455,-1.6052776532244,1.19963119786537,-0.357660834237097,-0.235770924907155,0.540731396129471,-0.474429180135185,0.352643260244769,-0.417501342561624,-0.721495756350504,-2.61440067740658,-0.0151740481825802,-1.09373518940406,1.15792893546762,0.0952078644881903,-0.990691319616287,-0.288852276311304,0.665974928469364,-1.86505085407521,-0.637850232188471],"mode":"markers","type":"scatter3d","name":"1","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"frame":null},{"x":[-1.14751118222971,-0.316043861075035,-0.986582023296547,-0.798831337874523,-1.33526186765173,-1.04022507627427,-0.316043861075035,-0.745188284896802,-1.22797576169629,-1.28161881467401,-0.745188284896802,-1.14751118222971,-0.798831337874523,-0.852474390852245,-0.745188284896802,-0.664723705430221,-0.530616072985919,-0.745188284896802,-1.30844034116287,-1.33526186765173,-0.664723705430221,-0.423329967030476,-1.20115423520743,-0.852474390852245,-1.33526186765173,-0.825652864363384,-0.584259125963639,-1.12068965574085,-0.932938970318826,-1.25479728818515,-1.17433270871857,-1.33526186765173,-0.63790217894136,-1.20115423520743,-0.986582023296547,-1.30844034116287,-1.28161881467401,-0.396508440541616,-1.30844034116287,-1.14751118222971,-1.33526186765173,-1.09386812925199,-1.30844034116287,-1.25479728818515,-0.932938970318826,-0.745188284896802,-1.06704660276313,-1.25479728818515,-0.289222334586174,-1.30844034116287,-0.986582023296547,-0.986582023296547,-0.959760496807686,-0.584259125963639,-0.798831337874523,-0.664723705430221],"y":[-1.63089024675058,0.0742000595715406,-0.515603051508624,-0.771414485874914,-1.3762348154355,-0.417427175001891,0.0495128375700177,0.329377502240007,-1.25147415295364,-1.37615081569486,-0.0709819251981521,-1.52403756538849,0.187875220985623,0.201931255597587,-0.0364223211108531,-0.764007453270676,-0.64235311514708,-0.576223090648045,-0.12153903284152,-2.18678534280493,0.893454070922808,-0.0739856645651663,-1.06936917088082,-0.660719763135671,-0.831032225276028,-0.669764301373277,-1.26129503824661,-0.384065846103634,-0.0379766132967019,-0.784255194786359,-0.613375936569785,-1.17522248449742,0.916455182326696,-0.715438371929524,-0.711409349584362,-1.01356749737776,0.02120666516896,0.0624038545659031,-0.0972201018878976,-1.45727850252935,-1.92036522463467,-1.82237839446708,-2.09637308669553,-0.663813705308228,0.0967354097035278,-0.578943433135537,-1.67732678373969,0.166118419220789,0.653227896978387,0.128907905881728,-1.17434985901598,-1.26109558395086,-0.129914086511387,-1.12647549854434,-0.49458190110952,-0.952213904684123],"z":[-0.144656311917597,0.970531728066695,0.935155107142471,-0.063417868742296,-0.382848961453762,-0.638027585042865,-0.313625458292126,0.931705549811489,-1.37374705042546,-0.862137071332081,-1.46833624153662,-1.2956052218721,1.06262717588401,0.377187353818577,-1.60057444598062,-1.51846127088755,-1.86505085407521,-1.01816448650343,0.601062668993162,-0.704109365544265,0.698255739308889,-1.60057444598062,0.203793850901428,-0.422889816378224,0.0831234010321087,0.0508058464851691,-2.7907182835964,-0.191152532407021,0.214247723675326,0.664662310896565,-2.09152887417912,-1.31889048364684,1.02892129633447,0.235784561006818,-0.219567561671811,-0.08382732724845,-0.0464014992091756,-0.270933632551722,-0.159464469532103,0.0397234635112011,-2.46421519989626,-0.742763906015786,-0.0365736174975559,-0.681666501066079,1.26905388826024,-0.0645493115121236,-0.59938521260194,-0.0493761812146573,0.515954079588958,0.143403238259424,-0.82697164222527,-0.0336032842776573,0.336044436015063,0.0769017122753697,1.14891451468872,-0.194678757217163],"mode":"markers","type":"scatter3d","name":"2","marker":{"color":"rgba(252,141,98,1)","line":{"color":"rgba(252,141,98,1)"}},"textfont":{"color":"rgba(252,141,98,1)"},"error_y":{"color":"rgba(252,141,98,1)"},"error_x":{"color":"rgba(252,141,98,1)"},"line":{"color":"rgba(252,141,98,1)"},"frame":null},{"x":[1.45417688718976,1.26642620176773,1.48099841367862,1.4273553607009,0.864103304434827,1.40053383421204,0.864103304434827,1.45417688718976,1.21278314879001,1.34689078123432,1.82967825803381,1.6955706255895,0.890924830923688,1.6955706255895,1.72239215207836,1.48099841367862,2.12471504941127,1.72239215207836,1.18596162230115,1.15914009581229,1.58828451963406,1.61510604612292,1.45417688718976,1.23960467527887,1.50781994016748,1.34689078123432,1.40053383421204,1.05185398985685,1.45417688718976],"y":[1.50244400864037,1.31526503919969,1.37314397709527,0.756036888307301,1.50618580073394,0.639638894220041,1.24970534986832,1.67497766466182,1.34893258756017,1.68403016933093,1.13075874419143,1.37991104201948,1.00355083782438,1.20699418241445,1.35081285231269,1.03302776747236,1.03795231357589,1.4540695889144,1.44982216245475,1.62816418122134,1.24314436711932,1.29723132764691,1.10400208597105,0.31527809946866,1.00398449933608,1.43062278911255,1.55720426161891,0.290469948983383,1.30735402746136],"z":[1.15410947746476,1.19162719333602,1.08180125715242,1.097216075513,1.09244193807679,1.15712299941767,1.10036104488562,1.18269180207509,0.752752201886274,1.07404829521675,0.998739612796547,1.16088166963388,1.00266072495172,0.985296335144466,1.03668897320855,0.959167666609815,0.567001690987371,1.10037139278958,1.04103442718188,1.20457154523593,1.1883095975669,1.1855188951367,1.09957278802567,0.577524564333829,1.09883722597426,1.17391928437862,1.19434750193194,0.714927521736128,1.1347138001415],"mode":"markers","type":"scatter3d","name":"3","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"line":{"color":"rgba(141,160,203,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>…</p>
 </div>
 
             

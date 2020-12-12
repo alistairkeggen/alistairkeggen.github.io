@@ -8,21 +8,22 @@
     <language>en-US</language>
     <lastBuildDate>Tue, 01 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Project 1</title>
-      <link>/project/project1/</link>
-      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/project/project1/</guid>
-      <description>Test Project 1</description>
-    </item>
-    
-    <item>
       <title>Project 2</title>
       <link>/project/project2/</link>
       <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
       
       <guid>/project/project2/</guid>
       <description>Test Project 2</description>
+    </item>
+    
+    <item>
+      <title>Project 1: Exploratory Data Analysis</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Alistair KeggenProject 1
+When I was looking at the various datasets available to me, I was very curious to see if there was a correlation between how much a country drinks and how high its Human Freedom Index Score was. Could there be an interesting correlation between alcohol consumption and having a lower personal freedom score? Alcohol is known to cause dangerous situations, so I wanted to see if higher alcohol consumption does lower the score of each country.</description>
     </item>
     
   </channel>

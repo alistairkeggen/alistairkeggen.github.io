@@ -19,15 +19,6 @@ Link to google</description>
     </item>
     
     <item>
-      <title>Project 1</title>
-      <link>/project/project1/</link>
-      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/project/project1/</guid>
-      <description>Test Project 1</description>
-    </item>
-    
-    <item>
       <title>Project 2</title>
       <link>/project/project2/</link>
       <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
@@ -45,6 +36,16 @@ Link to google</description>
       <description>R MarkdownThis is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
 You can embed an R code chunk like this:
 summary(cars)## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.</description>
+    </item>
+    
+    <item>
+      <title>Project 1: Exploratory Data Analysis</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Alistair KeggenProject 1
+When I was looking at the various datasets available to me, I was very curious to see if there was a correlation between how much a country drinks and how high its Human Freedom Index Score was. Could there be an interesting correlation between alcohol consumption and having a lower personal freedom score? Alcohol is known to cause dangerous situations, so I wanted to see if higher alcohol consumption does lower the score of each country.</description>
     </item>
     
     <item>
