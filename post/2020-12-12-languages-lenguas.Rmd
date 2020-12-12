@@ -1,0 +1,70 @@
+---
+title: "Languages! Lenguas!"
+author: "Alistair Keggen"
+date: '2020-12-12'
+slug: languages-lenguas
+categories: []
+tags: []
+description: ''
+---
+
+
+ <font size="4"> Hello! Hola! Bonjour! Privet!</font> 
+
+I, for one, love to listen to other languages. Especially through music! Listening to international songs featuring a plethora of languages is the perfect way to safely experience the world during a global pandemic. Can I mention that its budget friendly as well? 
+
+Pack your imaginary bags and prep your ears for takeoff, we are going on a sonic world tour. Featuring artists from countries such as Brazil, Switzerland, Japan, and Russia, this playlist features some of my favorite foreign language artists and songs. Please enjoy this adventurous soundscape as you read further about my other two favorite languages, Python and R-studio. 
+
+  {r}  (https://open.spotify.com/playlist/1mcdwc23UgJNBNHZd0cGVT?si=av-DPvv-QyW_WaJPCd1owQ)
+
+<font size="4"> Python and R-Studio </font> 
+
+OK, I have to be honest. I much prefer R-Studio over Python. However, maybe I can create the perfect mixture of both by allowing the two languages to work together as one. Much like the song Coco Channel by LAUSSE THE CAT, which features English and French, I should be able to create an important amalgamation of the two. 
+R-stython? Pythudio? Hm...
+
+
+
+Here I will demonstrate r-studio and python working together to ultimately create the same result!
+```{r}
+library(reticulate)
+#R code
+hardtruth <- "Expand your music"
+
+```
+
+```{python}
+#PYTHON code
+hardtruth = "music taste. Explore the world!"
+print (r.hardtruth, hardtruth) #access R-defined objects with r
+
+
+```
+```{r}
+#R-STUDIO CODE
+cat(c(hardtruth,py$hardtruth)) #access Python-defined objects with py$
+
+
+
+```
+Another example: Here I will show a boxplot of an earthquake dataset depicting the max, min, and median depth that earthquakes occur throughout the world. This boxplot will be made through R-studio. The median depth for earthquakes occurs at 247 KM.
+
+```{r}
+boxplot(quakes$depth)
+
+median(quakes$depth)
+```
+Now I will import the quakes dataset into python. Then I will use the r studio version of the quakes dataset to find the true median of the depth. The true median of the depth according to python is 247.0 KM. This matches with the boxplot and the code from R studio above.
+```{python}
+
+import pandas as pd
+quakes=pd.read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/datasets/quakes.csv",index_col=0)
+
+
+r.quakes.depth.median()
+
+
+```
+
+![](static/img/workpls.jpg)
+
+
