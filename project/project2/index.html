@@ -7,7 +7,7 @@
     <meta name="author" content="Alistair Keggen" />
     
     <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
-    <title>Project 2</title>
+    <title>Project 2: Modeling, Testing, and Predicting</title>
     <meta name="generator" content="Hugo 0.79.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/css/main.css" />
@@ -54,13 +54,13 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="/project/project2/">Project 2</a></strong>
+            <strong><a href="/project/project2/">Project 2: Modeling, Testing, and Predicting</a></strong>
           </h3>
         </div>
  
 <div class="blog-title">
           <h4>
-         December 1, 2020 
+         January 1, 0001 
             &nbsp;&nbsp;
             
           </h4>
@@ -74,8 +74,474 @@
 <script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
 
 
-<div id="test-project-2" class="section level2">
-<h2>Test Project 2</h2>
+<p>Alistair Keggen
+Project 2</p>
+<pre class="r"><code>library(dplyr)
+library(dplyr, warn.conflicts = FALSE)
+
+# Suppress summarise info
+options(dplyr.summarise.inform = FALSE)
+storms &lt;- storms
+
+storms</code></pre>
+<pre><code>## # A tibble: 10,010 x 13
+## name year month day hour lat long status category wind
+pressure ts_diameter hu_diameter
+## &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;ord&gt;
+&lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Amy 1975 6 27 0 27.5 -79 tropic~ -1 25 1013 NA NA
+## 2 Amy 1975 6 27 6 28.5 -79 tropic~ -1 25 1013 NA NA
+## 3 Amy 1975 6 27 12 29.5 -79 tropic~ -1 25 1013 NA NA
+## 4 Amy 1975 6 27 18 30.5 -79 tropic~ -1 25 1013 NA NA
+## 5 Amy 1975 6 28 0 31.5 -78.8 tropic~ -1 25 1012 NA NA
+## 6 Amy 1975 6 28 6 32.4 -78.7 tropic~ -1 25 1012 NA NA
+## 7 Amy 1975 6 28 12 33.3 -78 tropic~ -1 25 1011 NA NA
+## 8 Amy 1975 6 28 18 34 -77 tropic~ -1 30 1006 NA NA
+## 9 Amy 1975 6 29 0 34.4 -75.8 tropic~ 0 35 1004 NA NA
+## 10 Amy 1975 6 29 6 34 -74.8 tropic~ 0 40 1002 NA NA
+## # ... with 10,000 more rows</code></pre>
+<pre class="r"><code>storms&lt;- read_csv(&quot;stormsnew - storms.csv&quot;)
+storms &lt;- storms %&gt;% select(X1, name, year, month, hour, lat, long, status, category, wind, pressure, Gender)
+head(storms)</code></pre>
+<pre><code>## # A tibble: 6 x 12
+## X1 name year month hour lat long status category wind
+pressure Gender
+## &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
+&lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 1 Amy 1975 6 0 27.5 -79 tropical depression -1 25 1013
+1
+## 2 2 Amy 1975 6 6 28.5 -79 tropical depression -1 25 1013
+1
+## 3 3 Amy 1975 6 12 29.5 -79 tropical depression -1 25
+1013 1
+## 4 4 Amy 1975 6 18 30.5 -79 tropical depression -1 25
+1013 1
+## 5 5 Amy 1975 6 0 31.5 -78.8 tropical depression -1 25
+1012 1
+## 6 6 Amy 1975 6 6 32.4 -78.7 tropical depression -1 25
+1012 1</code></pre>
+<div id="guidelines-and-rubric" class="section level2">
+<h2>Guidelines and Rubric</h2>
+<ul>
+<li><strong>0. (5 pts)</strong> Introduction</li>
+</ul>
+<p>I chose the storms dataset from the dplyr package. This dataset interested me as I believed there could be many different relationships that could be tested within the data. The varibles included in this dataset include the storm name, the year, month, and date the storm occured, the hour, the latitude and longitude of the storm, the status of the storm, the wind miles per hour,the pressure, and the gender of the storm name. Within each variable, there are 10010 observations</p>
+<ul>
+<li><strong>1. (15 pts)</strong> MANOVA, Univariate ANOVAs, Post-hoc t tests</li>
+</ul>
+<pre class="r"><code>library(rstatix)
+man1&lt;-manova(cbind(lat, long, pressure, wind)~status, data=storms)
+summary(man1)</code></pre>
+<pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
+## status 2 0.86814 1918.5 8 20010 &lt; 2.2e-16 ***
+## Residuals 10007
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>summary.aov(man1)</code></pre>
+<pre><code>## Response lat :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## status 2 21300 10650.1 150.32 &lt; 2.2e-16 ***
+## Residuals 10007 708988 70.8
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response long :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## status 2 21430 10714.8 28.085 6.872e-13 ***
+## Residuals 10007 3817851 381.5
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response pressure :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## status 2 2459684 1229842 9097.5 &lt; 2.2e-16 ***
+## Residuals 10007 1352789 135
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response wind :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## status 2 5268674 2634337 16382 &lt; 2.2e-16 ***
+## Residuals 10007 1609178 161
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>storms%&gt;%group_by(status)%&gt;%summarize(mean(lat), mean(long), mean(pressure), mean(wind))</code></pre>
+<pre><code>## # A tibble: 3 x 5
+## status `mean(lat)` `mean(long)` `mean(pressure)`
+`mean(wind)`
+## &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 hurricane 26.5 -63.6 969.  86.0
+## 2 tropical depression 22.6 -66.7 1008.  27.3
+## 3 tropical storm 24.8 -63.2 999.  45.8</code></pre>
+<pre class="r"><code>pairwise.t.test(storms$pressure,
+storms$status, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  storms$pressure and storms$status 
+## 
+##                     hurricane tropical depression
+## tropical depression &lt;2e-16    -                  
+## tropical storm      &lt;2e-16    &lt;2e-16             
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(storms$lat,
+storms$status, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  storms$lat and storms$status 
+## 
+##                     hurricane tropical depression
+## tropical depression &lt;2e-16    -                  
+## tropical storm      &lt;2e-16    &lt;2e-16             
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(storms$long,
+storms$status, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  storms$long and storms$status 
+## 
+##                     hurricane tropical depression
+## tropical depression 2.5e-09   -                  
+## tropical storm      0.42      7.6e-13            
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(storms$wind,
+storms$status, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  storms$wind and storms$status 
+## 
+##                     hurricane tropical depression
+## tropical depression &lt;2e-16    -                  
+## tropical storm      &lt;2e-16    &lt;2e-16             
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>1-.95^17 #probability of type 1 error</code></pre>
+<pre><code>## [1] 0.5818797</code></pre>
+<pre class="r"><code>.05/17 #bonferroni correction</code></pre>
+<pre><code>## [1] 0.002941176</code></pre>
+<pre class="r"><code>group &lt;- storms$status 
+DVs &lt;- storms %&gt;% select(lat, long, wind, pressure)
+
+#Test multivariate normality for each group (null: assumption met)
+sapply(split(DVs,group), mshapiro_test)</code></pre>
+<pre><code>##           hurricane    tropical depression tropical storm
+## statistic 0.9553414    0.9468291           0.9397712     
+## p.value   8.849777e-30 2.165681e-29        6.093389e-39</code></pre>
+<pre class="r"><code>#If any p&lt;.05, stop (assumption violated).</code></pre>
+<p>From the MANOVA performed, at least one numerical mean is different within the three status levels of storm: tropical storm, tropical depression, and hurricane. Multiple univeriate ANOVAs were performed. The univeriate ANOVAS were significant, meaning within latitude, longitude, pressure, and wind, at least one status level differs. Pairwise T-tests were performed to see which groups differ. All groups differ within every numerical variable for each status except for the longtiudes of tropical storms and hurricanes. One MANOVA, 4 ANOVAs, and 12 T-tests were performed for a total of 17 tests. The probability of at least one type I error is 0.5818797. The bonferroni correction is .002941. With this correction, Post hoc analysis was performed conducting pairwise comparisons to determine which status levels differed in latitude, longitude, pressure, and wind velocity. All three status levels were found to differ significantly from each other in terms of latitude, pressure, and wind velocity after adjusting for multiple comparisons (bonferroni ). However, longitutde did not differ significantly within the three status levels.</p>
+<p>MANOVA assumptions are vast. They suggest that there are random samples, assumes DVs have multivariate normality, that there are linear relationships among DVs, etc. The storms data does not meet the MANOVA assumptions based on the plots.</p>
+<ul>
+<li><strong>2. (10 pts)</strong> Randomization Test</li>
+</ul>
+<pre class="r"><code>summary(aov(lat~wind,data=storms))</code></pre>
+<pre><code>## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## wind 1 4234 4234 58.36 2.38e-14 ***
+## Residuals 10008 726054 73
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>obs_F&lt;-58.36
+Fs&lt;-replicate(5000,{
+  new&lt;-storms%&gt;%mutate(lat=sample(lat)) 
+ 
+  SSW&lt;- new%&gt;%group_by(wind)%&gt;%summarize(SSW=sum((lat-mean(lat))^2))%&gt;%summarize(sum(SSW))%&gt;%pull
+  SSB&lt;- new%&gt;%mutate(mean=mean(lat))%&gt;%group_by(wind)%&gt;%mutate(groupmean=mean(lat))%&gt;%
+    summarize(SSB=sum((mean-groupmean)^2))%&gt;%summarize(sum(SSB))%&gt;%pull
+  (SSB/1)/(SSW/10008)
+})
+
+
+
+hist(Fs, prob=T); abline(v = obs_F, col=&quot;red&quot;,add=T)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>mean(Fs&gt;obs_F)</code></pre>
+<pre><code>## [1] 0.0012</code></pre>
+<p>The null hypothesis: there is no difference between the observed F statistic and the randomized F statistic. The randomized F statistic gives a scenario where the null hypothesis could be true. Alterior hypothesis: the F statistic and randomized F statistic are significantly different. From the graph, the observed F statistic could be found within the randomized test, so therefore we fail to reject the null hypothesis.</p>
+<ul>
+<li><strong>3. (35 pts)</strong> Linear regression model predicting one of your response variables from at least 2 other variables</li>
+</ul>
+<pre class="r"><code>library(sandwich)
+library(plotROC)
+library(lmtest)
+storms$pressure_c &lt;- storms$pressure - mean(storms$pressure, na.rm=T)
+interaction &lt;- lm(pressure~lat * status, data=storms)
+interaction2 &lt;- lm(pressure~lat * status, data=storms)$residuals
+summary(interaction)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = pressure ~ lat * status, data = storms)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -82.826 -4.127 0.811 5.327 41.083
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 956.55704 0.69003 1386.26 &lt;2e-16 ***
+## lat 0.47795 0.02487 19.21 &lt;2e-16 ***
+## statustropical depression 51.04749 0.95578 53.41 &lt;2e-16
+***
+## statustropical storm 47.69400 0.86393 55.21 &lt;2e-16 ***
+## lat:statustropical depression -0.47700 0.03710 -12.86
+&lt;2e-16 ***
+## lat:statustropical storm -0.67672 0.03179 -21.29 &lt;2e-16
+***
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 11.36 on 10004 degrees of
+freedom
+## Multiple R-squared: 0.6611, Adjusted R-squared: 0.6609
+## F-statistic: 3903 on 5 and 10004 DF, p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>storms %&gt;% ggplot(aes(lat, pressure, color=status)) + geom_point() +geom_smooth(method=&quot;lm&quot;)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot()+geom_histogram(aes(interaction2),bins=20)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(storms, aes(lat, pressure)) + geom_point(alpha=.3) </code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-4-3.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>coeftest(interaction, vcov=vcovHC(interaction))</code></pre>
+<pre><code>##
+## t test of coefficients:
+##
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 956.557036 1.188883 804.585 &lt; 2.2e-16 ***
+## lat 0.477951 0.037693 12.680 &lt; 2.2e-16 ***
+## statustropical depression 51.047494 1.205306 42.352 &lt;
+2.2e-16 ***
+## statustropical storm 47.694000 1.221358 39.050 &lt; 2.2e-16
+***
+## lat:statustropical depression -0.477004 0.038986 -12.235
+&lt; 2.2e-16 ***
+## lat:statustropical storm -0.676718 0.039542 -17.114 &lt;
+2.2e-16 ***
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<p>The intercept represents the average pressure recorded during a hurricane. The statusTropical depression coefficent suggests that if the storm has the depression status than the average pressure would increase by 51.0475 units. The statusTropical storm coefficent suggests that if the storm has the storm status than the average pressure would increase by 47.694 units. The lat coefficent suggests that for every unit of lat that increases, the pressure would increase by .47795 units. The significant interactions demonstrate that effect of latitude on pressure depends on the status of the storm. From the graphs, linearity, normality, and homoskedasticity are not met. After recomputing the regression with robust standard errors, none of the coefficents changed, however all standard errors increased. Furthermore, this did not change the significance of each. My model explains 0.6611 (a proportion) of the variation in the outcome.</p>
+<ul>
+<li><strong>4. (5 pts)</strong> Rerun same regression model with bootstrapped standard errors</li>
+</ul>
+<pre class="r"><code>samp_distn&lt;-replicate(5000, {
+boot_dat &lt;- sample_frac(storms, replace=T) #take bootstrap sample of rows
+fit &lt;-lm(pressure~lat * status, data=boot_dat) #fit model on bootstrap sample
+coef(fit) 
+})
+## Estimated SEs
+samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>## (Intercept) lat statustropical depression statustropical
+storm
+## 1 1.186622 0.03779408 1.203763 1.210846
+## lat:statustropical depression lat:statustropical storm
+## 1 0.03913197 0.03930091</code></pre>
+<p>The new bootstrapped standard errors are very similar to the robust standard errors. However, the boostrapped standard errors are marginally smaller in every catagory.</p>
+<ul>
+<li><strong>5. (25 pts)</strong> Logistic regression model predicting a binary variable from at least two explanatory variables.</li>
+</ul>
+<pre class="r"><code>library(knitr)
+opts_chunk$set(fig.align=&quot;center&quot;, fig.height=5, message=FALSE, warning=FALSE, fig.width=8, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+
+#HERE&#39;S THE CLASSIFICAITON DIAGNOSTICS FUNCTION
+class_diag&lt;-function(probs,truth){
+  tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE){
+    truth&lt;-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord&lt;-order(probs, decreasing=TRUE)
+  probs &lt;- probs[ord]; truth &lt;- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup&lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+  TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+  
+  n &lt;- length(TPR)
+  auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+isgender &lt;- glm(Gender~wind+pressure, data=storms, family= &quot;binomial&quot;)
+summary(isgender)</code></pre>
+<pre><code>##
+## Call:
+## glm(formula = Gender ~ wind + pressure, family =
+&quot;binomial&quot;,
+## data = storms)
+##
+## Deviance Residuals:
+## Min 1Q Median 3Q Max
+## -1.221 -1.160 -1.010 1.194 1.533
+##
+## Coefficients:
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -6.6753158 3.1796855 -2.099 0.0358 *
+## wind 0.0001426 0.0022909 0.062 0.9504
+## pressure 0.0066288 0.0030881 2.147 0.0318 *
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## (Dispersion parameter for binomial family taken to be 1)
+##
+## Null deviance: 13856 on 10009 degrees of freedom
+## Residual deviance: 13817 on 10007 degrees of freedom
+## AIC: 13823
+##
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code>exp(coef(isgender))</code></pre>
+<pre><code>## (Intercept)        wind    pressure 
+## 0.001261674 1.000142574 1.006650832</code></pre>
+<pre class="r"><code>prob &lt;- predict(isgender, type = &quot;response&quot;)
+class_diag(prob, storms$Gender)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.5130869 0.2199205 0.7809214 0.4783796 0.3013188
+0.5200793</code></pre>
+<pre class="r"><code>predicition &lt;- ifelse(prob &gt; 0.5, 1, 0)
+table(prediction = predicition, truth = storms$Gender) %&gt;% addmargins</code></pre>
+<pre><code>##           truth
+## prediction     0     1   Sum
+##        0    4085  3728  7813
+##        1    1146  1051  2197
+##        Sum  5231  4779 10010</code></pre>
+<pre class="r"><code>ROCstar &lt;-ggplot(isgender)+geom_roc(aes(d=Gender, m=prob), n.cuts=0)
+ROCstar</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCstar)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.5200793</code></pre>
+<p>While hurricane names switch between the two binary genders, this regression would indicate whether wind or pressure would, by chance, have an effect or relationship on the gender of the name of the Hurricane as well. The intercept indicates that the odds of having a woman name is .00126. The wind intercept is not significant. However, the pressure intercept is significiant, and indicates that , for every one additional pressure unit increase, odds of having a female name increase by a factor of 1.00665 (significant) The accuracy,the proportion of correctly classified names, is .513. The Sensitivity, the is proportion of women named hurricanes correctly classified, is .2199. The Specificity, is proportion of men name hurricanes correctly classified, is .7809. The Prescision,the proportion classified women hurricanes with actual women names, is .4784. The AUC is .52008. The AUC is very poor, indicating this is not a good model for prediciting whether a huricane will have a man or woman name from the wind and pressure data alone. The ROC curve is a graph of TPR (Sensitivity) against FPR (1-Specificity) and shows an AUC of .52009. THis means we are prediciting the correct names around 52% of the time.</p>
+<ul>
+<li><strong>6. (25 pts)</strong> Perform a logistic regression predicting the same binary response variable from <em>ALL</em> variables</li>
+</ul>
+<pre class="r"><code>isgender2 &lt;- glm(Gender~wind+pressure+month+lat+long+category+status, data=storms, family= &quot;binomial&quot;)
+summary(isgender2)</code></pre>
+<pre><code>##
+## Call:
+## glm(formula = Gender ~ wind + pressure + month + lat +
+long +
+## category + status, family = &quot;binomial&quot;, data = storms)
+##
+## Deviance Residuals:
+## Min 1Q Median 3Q Max
+## -1.3117 -1.1552 -0.8518 1.1926 1.6728
+##
+## Coefficients:
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -8.498e-01 3.606e+00 -0.236 0.81370
+## wind 1.093e-02 3.726e-03 2.933 0.00336 **
+## pressure -3.628e-05 3.463e-03 -0.010 0.99164
+## month 4.128e-02 1.655e-02 2.494 0.01262 *
+## lat 3.584e-03 2.497e-03 1.435 0.15122
+## long -1.583e-03 1.053e-03 -1.503 0.13276
+## category -4.599e-01 6.614e-02 -6.953 3.56e-12 ***
+## statustropical depression -4.908e-01 1.209e-01 -4.060
+4.91e-05 ***
+## statustropical storm -1.654e-01 8.280e-02 -1.998 0.04575
+*
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## (Dispersion parameter for binomial family taken to be 1)
+##
+## Null deviance: 13856 on 10009 degrees of freedom
+## Residual deviance: 13739 on 10001 degrees of freedom
+## AIC: 13757
+##
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code>exp(coef(isgender2))</code></pre>
+<pre><code>## (Intercept) wind pressure
+## 0.4275210 1.0109874 0.9999637
+## month lat long
+## 1.0421479 1.0035908 0.9984183
+## category statustropical depression statustropical storm
+## 0.6313449 0.6121153 0.8475506</code></pre>
+<pre class="r"><code>prob2 &lt;- predict(isgender2, type = &quot;response&quot;)
+class_diag(prob2, storms$Gender)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.5393606 0.3724629 0.6918371 0.5247642 0.4356872
+0.5465646</code></pre>
+<pre class="r"><code>k=10
+
+data &lt;- storms[sample(nrow(storms)), ]
+folds &lt;- cut(seq(1:nrow(storms)), breaks = k, labels = F)
+diags &lt;- NULL
+
+2</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="r"><code>for (i in 1:k) {
+train &lt;- data[folds != i, ]
+test &lt;- data[folds == i, ]
+truth &lt;- test$Gender
+fit &lt;- glm(Gender~wind+pressure+month+lat+long+category+status, data=storms, family= &quot;binomial&quot;)
+probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.5393606 0.3723878 0.6919072 0.5247817 0.4353727
+0.5464046</code></pre>
+<pre class="r"><code>storms1 &lt;-storms %&gt;% drop_na(Gender) 
+library(glmnet)
+y &lt;- as.matrix(storms1$Gender)
+gender_preds &lt;- model.matrix(Gender ~wind+pressure+month+lat+long+category+status, data = storms1)
+cv &lt;- cv.glmnet(gender_preds, y, family = &quot;binomial&quot;)
+lasso_fit &lt;- glmnet(gender_preds, y, family = &quot;binomial&quot;, lambda = cv$lambda.1se)
+coef(lasso_fit)</code></pre>
+<pre><code>## 10 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                                      s0
+## (Intercept)               -0.5376815365
+## (Intercept)                .           
+## wind                       0.0019872447
+## pressure                   .           
+## month                      0.0391100209
+## lat                        0.0042868794
+## long                      -0.0007518335
+## category                  -0.2172397492
+## statustropical depression -0.2795266159
+## statustropical storm      -0.0400111623</code></pre>
+<pre class="r"><code>k=10
+
+data &lt;- storms1[sample(nrow(storms1)), ]
+folds &lt;- cut(seq(1:nrow(storms1)), breaks = k, labels = F)
+diags &lt;- NULL
+
+2</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="r"><code>for (i in 1:k) {
+train &lt;- data[folds != i, ]
+test &lt;- data[folds == i, ]
+truth &lt;- test$Gender
+fit &lt;- glm(Gender~month+lat+long+category+status+wind, data=storms1, family= &quot;binomial&quot;)
+probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.5392607 0.3724919 0.6919443 0.5250262 0.4354211
+0.5467898</code></pre>
+<p>The first logistic regression model with all variables has an accuracy of 0.5393606, a sensitivity of 0.3724629, a specificity of 0.6918371, a precision of 0.5247642, and an AUC of 0.5465646. The AUC is poor indicating this is not a good model for prediciting whether a huricane will have a man or woman name from the variables. A ten-fold CV with the same model was performed, and the classification diagnostics are as follows: Accuracy = 0.5393606, sensitivity = 0.3726621, specificity = 0.691687, precision = 0.5249807, AUC = 0.5462168. This AUC was worse than the first logistic regression model that had an AUC of .5465646. LASSO was performed on the same model, and the varibles that were retained were month, lat, long, category, status, and wind. Another 10-fod CV was performed only using these varibles, and the AUC decreased to 0.5463381 from 0.5462168 from the first ten-fold CV, and 0.5465646 from the first logistic regression. This means the performance of the model was worse.</p>
+<p>…</p>
 </div>
 
             
