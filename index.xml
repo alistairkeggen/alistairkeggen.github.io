@@ -19,6 +19,16 @@ Link to google</description>
     </item>
     
     <item>
+      <title>Project 2: Modeling, Testing, and Predicting</title>
+      <link>/project/project2/</link>
+      <pubDate>Wed, 11 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Alistair KeggenProject 2
+library(dplyr)# Suppress summarise infooptions(dplyr.summarise.inform = FALSE)storms &amp;lt;- stormsstorms## # A tibble: 10,010 x 13## name year month day hour lat long status category windpressure ts_diameter hu_diameter## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;ord&amp;gt;&amp;lt;int&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;## 1 Amy 1975 6 27 0 27.5 -79 tropic~ -1 25 1013 NA NA## 2 Amy 1975 6 27 6 28.</description>
+    </item>
+    
+    <item>
       <title>Project 1: Exploratory Data Analysis</title>
       <link>/project/project1/</link>
       <pubDate>Sun, 11 Oct 2020 00:00:00 +0000</pubDate>
@@ -37,16 +47,6 @@ When I was looking at the various datasets available to me, I was very curious t
       <description>R MarkdownThis is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
 You can embed an R code chunk like this:
 summary(cars)## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.</description>
-    </item>
-    
-    <item>
-      <title>Project 2: Modeling, Testing, and Predicting</title>
-      <link>/project/project2/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/project/project2/</guid>
-      <description>Alistair KeggenProject 2
-library(dplyr)library(dplyr, warn.conflicts = FALSE)# Suppress summarise infooptions(dplyr.summarise.inform = FALSE)storms &amp;lt;- stormsstorms## # A tibble: 10,010 x 13## name year month day hour lat long status category windpressure ts_diameter hu_diameter## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;ord&amp;gt;&amp;lt;int&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;## 1 Amy 1975 6 27 0 27.5 -79 tropic~ -1 25 1013 NA NA## 2 Amy 1975 6 27 6 28.</description>
     </item>
     
     <item>

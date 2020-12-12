@@ -1,7 +1,7 @@
 ---
 title: 'Project 2: Modeling, Testing, and Predicting'
 author: "SDS348"
-date: ''
+date: '2020-11-11' 
 output:
   html_document:
     toc: yes
@@ -35,7 +35,7 @@ Project 2
 
 ```{r}
 library(dplyr)
-library(dplyr, warn.conflicts = FALSE)
+
 
 # Suppress summarise info
 options(dplyr.summarise.inform = FALSE)

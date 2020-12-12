@@ -43,7 +43,7 @@
         
         <li><a href="/projects/">PROJECTS</a></li>
         
-        <li><a href="/resume.pdf/">RESUME</a></li>
+        <li><a href="/resume/">RESUME</a></li>
         
       
       </ul>
@@ -60,7 +60,7 @@
  
 <div class="blog-title">
           <h4>
-         January 1, 0001 
+         November 11, 2020 
             &nbsp;&nbsp;
             
           </h4>
@@ -77,7 +77,7 @@
 <p>Alistair Keggen
 Project 2</p>
 <pre class="r"><code>library(dplyr)
-library(dplyr, warn.conflicts = FALSE)
+
 
 # Suppress summarise info
 options(dplyr.summarise.inform = FALSE)
@@ -266,7 +266,7 @@ Fs&lt;-replicate(5000,{
 hist(Fs, prob=T); abline(v = obs_F, col=&quot;red&quot;,add=T)</code></pre>
 <p><img src="/project/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>mean(Fs&gt;obs_F)</code></pre>
-<pre><code>## [1] 0.0012</code></pre>
+<pre><code>## [1] 0.0016</code></pre>
 <p>The null hypothesis: there is no difference between the observed F statistic and the randomized F statistic. The randomized F statistic gives a scenario where the null hypothesis could be true. Alterior hypothesis: the F statistic and randomized F statistic are significantly different. From the graph, the observed F statistic could be found within the randomized test, so therefore we fail to reject the null hypothesis.</p>
 <ul>
 <li><strong>3. (35 pts)</strong> Linear regression model predicting one of your response variables from at least 2 other variables</li>
@@ -342,9 +342,9 @@ coef(fit)
 samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
 <pre><code>## (Intercept) lat statustropical depression statustropical
 storm
-## 1 1.186622 0.03779408 1.203763 1.210846
+## 1 1.18815 0.03740965 1.202828 1.218892
 ## lat:statustropical depression lat:statustropical storm
-## 1 0.03913197 0.03930091</code></pre>
+## 1 0.0385845 0.03907599</code></pre>
 <p>The new bootstrapped standard errors are very similar to the robust standard errors. However, the boostrapped standard errors are marginally smaller in every catagory.</p>
 <ul>
 <li><strong>5. (25 pts)</strong> Logistic regression model predicting a binary variable from at least two explanatory variables.</li>
@@ -499,8 +499,8 @@ diags &lt;- rbind(diags, class_diag(probs, truth))
 }
 summarize_all(diags, mean)</code></pre>
 <pre><code>## acc sens spec ppv f1 auc
-## 1 0.5393606 0.3723878 0.6919072 0.5247817 0.4353727
-0.5464046</code></pre>
+## 1 0.5393606 0.3725691 0.6918188 0.5245083 0.4354548
+0.546366</code></pre>
 <pre class="r"><code>storms1 &lt;-storms %&gt;% drop_na(Gender) 
 library(glmnet)
 y &lt;- as.matrix(storms1$Gender)
@@ -510,16 +510,16 @@ lasso_fit &lt;- glmnet(gender_preds, y, family = &quot;binomial&quot;, lambda = 
 coef(lasso_fit)</code></pre>
 <pre><code>## 10 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                                      s0
-## (Intercept)               -0.5376815365
+## (Intercept)               -0.3993737318
 ## (Intercept)                .           
-## wind                       0.0019872447
+## wind                       .           
 ## pressure                   .           
-## month                      0.0391100209
-## lat                        0.0042868794
-## long                      -0.0007518335
-## category                  -0.2172397492
-## statustropical depression -0.2795266159
-## statustropical storm      -0.0400111623</code></pre>
+## month                      0.0331363228
+## lat                        0.0039800640
+## long                      -0.0001793739
+## category                  -0.1457879119
+## statustropical depression -0.1818805528
+## statustropical storm       .</code></pre>
 <pre class="r"><code>k=10
 
 data &lt;- storms1[sample(nrow(storms1)), ]
@@ -538,8 +538,8 @@ diags &lt;- rbind(diags, class_diag(probs, truth))
 }
 summarize_all(diags, mean)</code></pre>
 <pre><code>## acc sens spec ppv f1 auc
-## 1 0.5392607 0.3724919 0.6919443 0.5250262 0.4354211
-0.5467898</code></pre>
+## 1 0.5392607 0.3722311 0.6918464 0.5243389 0.4351478
+0.5465062</code></pre>
 <p>The first logistic regression model with all variables has an accuracy of 0.5393606, a sensitivity of 0.3724629, a specificity of 0.6918371, a precision of 0.5247642, and an AUC of 0.5465646. The AUC is poor indicating this is not a good model for prediciting whether a huricane will have a man or woman name from the variables. A ten-fold CV with the same model was performed, and the classification diagnostics are as follows: Accuracy = 0.5393606, sensitivity = 0.3726621, specificity = 0.691687, precision = 0.5249807, AUC = 0.5462168. This AUC was worse than the first logistic regression model that had an AUC of .5465646. LASSO was performed on the same model, and the varibles that were retained were month, lat, long, category, status, and wind. Another 10-fod CV was performed only using these varibles, and the AUC decreased to 0.5463381 from 0.5462168 from the first ten-fold CV, and 0.5465646 from the first logistic regression. This means the performance of the model was worse.</p>
 <p>…</p>
 </div>
