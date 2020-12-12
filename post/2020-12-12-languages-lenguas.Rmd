@@ -8,6 +8,7 @@ tags: []
 description: ''
 ---
 
+![](/post/2020-12-12-languages-lenguas_files/workpls.jpg)
 
  <font size="4"> Hello! Hola! Bonjour! Privet!</font> 
 
@@ -65,6 +66,6 @@ r.quakes.depth.median()
 
 ```
 
-![](static/img/workpls.jpg)
+
 
 
